@@ -3,6 +3,7 @@
 import { useAuth } from '@/hooks/useAuth'
 import { useRouter } from 'next/navigation'
 import { useEffect } from 'react'
+import { Box, CircularProgress, Typography } from '@mui/material'
 
 export default function HomePage() {
   const { isAuthenticated, isLoading } = useAuth()
@@ -19,11 +20,19 @@ export default function HomePage() {
   }, [isAuthenticated, isLoading, router])
 
   return (
-    <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-      <div className="text-center">
-        <div className="w-12 h-12 border-4 border-blue-600 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-        <p className="text-gray-600">Loading...</p>
-      </div>
-    </div>
+    <Box
+      sx={{
+        minHeight: '100vh',
+        bgcolor: 'grey.50',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+      }}
+    >
+      <Box sx={{ textAlign: 'center' }}>
+        <CircularProgress size={48} sx={{ mb: 2 }} />
+        <Typography color="text.secondary">Loading...</Typography>
+      </Box>
+    </Box>
   )
 }

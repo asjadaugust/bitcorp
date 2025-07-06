@@ -1,11 +1,10 @@
-'use client'
+'use client';
 
-import { useAuth } from '@/hooks/useAuth'
-import { useRouter } from 'next/navigation'
-import { useEffect } from 'react'
+import { useAuth } from '@/hooks/useAuth';
+import { useRouter } from 'next/navigation';
+import { useEffect } from 'react';
 import {
   Box,
-  Grid2 as Grid,
   Card,
   CardContent,
   Typography,
@@ -22,7 +21,8 @@ import {
   ListItem,
   ListItemAvatar,
   ListItemText,
-} from '@mui/material'
+  Grid,
+} from '@mui/material';
 import {
   Groups as Users,
   Settings,
@@ -34,17 +34,17 @@ import {
   Notifications as Bell,
   CalendarToday as Calendar,
   AttachMoney as DollarSign,
-} from '@mui/icons-material'
+} from '@mui/icons-material';
 
 export default function DashboardPage() {
-  const { user, isAuthenticated, isLoading, logout, hasRole } = useAuth()
-  const router = useRouter()
+  const { user, isAuthenticated, isLoading, logout, hasRole } = useAuth();
+  const router = useRouter();
 
   useEffect(() => {
     if (!isLoading && !isAuthenticated) {
-      router.push('/login')
+      router.push('/login');
     }
-  }, [isAuthenticated, isLoading, router])
+  }, [isAuthenticated, isLoading, router]);
 
   if (isLoading) {
     return (
@@ -62,16 +62,16 @@ export default function DashboardPage() {
           <Typography color="text.secondary">Loading dashboard...</Typography>
         </Box>
       </Box>
-    )
+    );
   }
 
   if (!user) {
-    return null
+    return null;
   }
 
-  const isAdmin = hasRole('admin')
-  const isDeveloper = hasRole('developer')
-  const isManager = hasRole('manager')
+  const isAdmin = hasRole('admin');
+  const isDeveloper = hasRole('developer');
+  const isManager = hasRole('manager');
 
   const quickActions = [
     {
@@ -106,7 +106,7 @@ export default function DashboardPage() {
       color: 'warning.main',
       available: isAdmin || isDeveloper,
     },
-  ]
+  ];
 
   const stats = [
     {
@@ -137,7 +137,7 @@ export default function DashboardPage() {
       icon: Calendar,
       color: 'warning.main',
     },
-  ]
+  ];
 
   const recentActivities = [
     {
@@ -158,7 +158,7 @@ export default function DashboardPage() {
       icon: BarChart3,
       color: 'secondary.main',
     },
-  ]
+  ];
 
   return (
     <Box sx={{ minHeight: '100vh', bgcolor: 'background.default' }}>
@@ -173,7 +173,7 @@ export default function DashboardPage() {
               Welcome back, {user.full_name}
             </Typography>
           </Box>
-          
+
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
             {/* Notifications */}
             <IconButton>
@@ -181,14 +181,16 @@ export default function DashboardPage() {
                 <Bell />
               </Badge>
             </IconButton>
-            
+
             {/* User Menu */}
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
               <Box sx={{ textAlign: 'right' }}>
                 <Typography variant="body2" fontWeight="medium">
                   {user.full_name}
                 </Typography>
-                <Box sx={{ display: 'flex', gap: 0.5, justifyContent: 'flex-end' }}>
+                <Box
+                  sx={{ display: 'flex', gap: 0.5, justifyContent: 'flex-end' }}
+                >
                   {user.roles.map((role) => (
                     <Chip
                       key={role.id}
@@ -217,7 +219,7 @@ export default function DashboardPage() {
         {/* Stats Grid */}
         <Grid container spacing={3} sx={{ mb: 4 }}>
           {stats.map((stat, index) => (
-            <Grid item xs={12} sm={6} lg={3} key={index}>
+            <Grid size={{ xs: 12, sm: 6, lg: 3 }} key={index}>
               <Card>
                 <CardContent>
                   <Box sx={{ display: 'flex', alignItems: 'center' }}>
@@ -232,14 +234,22 @@ export default function DashboardPage() {
                       <stat.icon sx={{ fontSize: 24, color: stat.color }} />
                     </Paper>
                     <Box sx={{ flexGrow: 1 }}>
-                      <Typography variant="body2" color="text.secondary" gutterBottom>
+                      <Typography
+                        variant="body2"
+                        color="text.secondary"
+                        gutterBottom
+                      >
                         {stat.title}
                       </Typography>
                       <Box sx={{ display: 'flex', alignItems: 'center' }}>
                         <Typography variant="h5" fontWeight="semibold">
                           {stat.value}
                         </Typography>
-                        <Typography variant="body2" color="success.main" sx={{ ml: 1 }}>
+                        <Typography
+                          variant="body2"
+                          color="success.main"
+                          sx={{ ml: 1 }}
+                        >
                           {stat.change}
                         </Typography>
                       </Box>
@@ -258,9 +268,9 @@ export default function DashboardPage() {
           </Typography>
           <Grid container spacing={3}>
             {quickActions
-              .filter(action => action.available)
+              .filter((action) => action.available)
               .map((action, index) => (
-                <Grid item xs={12} sm={6} lg={3} key={index}>
+                <Grid size={{ xs: 12, sm: 6, lg: 3 }} key={index}>
                   <Card
                     sx={{
                       cursor: 'pointer',
@@ -291,7 +301,11 @@ export default function DashboardPage() {
                       >
                         <action.icon sx={{ fontSize: 24, color: 'white' }} />
                       </Paper>
-                      <Typography variant="h6" gutterBottom fontWeight="semibold">
+                      <Typography
+                        variant="h6"
+                        gutterBottom
+                        fontWeight="semibold"
+                      >
                         {action.title}
                       </Typography>
                       <Typography variant="body2" color="text.secondary">
@@ -314,14 +328,25 @@ export default function DashboardPage() {
               {recentActivities.map((activity, index) => (
                 <ListItem key={index} disableGutters>
                   <ListItemAvatar>
-                    <Avatar sx={{ bgcolor: `${activity.color.replace('.main', '.100')}`, width: 32, height: 32 }}>
-                      <activity.icon sx={{ fontSize: 16, color: activity.color }} />
+                    <Avatar
+                      sx={{
+                        bgcolor: `${activity.color.replace('.main', '.100')}`,
+                        width: 32,
+                        height: 32,
+                      }}
+                    >
+                      <activity.icon
+                        sx={{ fontSize: 16, color: activity.color }}
+                      />
                     </Avatar>
                   </ListItemAvatar>
                   <ListItemText
                     primary={activity.title}
                     secondary={activity.time}
-                    primaryTypographyProps={{ variant: 'body2', fontWeight: 'medium' }}
+                    primaryTypographyProps={{
+                      variant: 'body2',
+                      fontWeight: 'medium',
+                    }}
                     secondaryTypographyProps={{ variant: 'caption' }}
                   />
                 </ListItem>
@@ -331,5 +356,5 @@ export default function DashboardPage() {
         </Card>
       </Container>
     </Box>
-  )
+  );
 }
