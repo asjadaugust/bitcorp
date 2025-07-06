@@ -43,7 +43,7 @@ The entire codebase will be deployed on a Synology NAS. Ensure all Docker, volum
 ⸻
 
 📦 Technology Stack
-	•	Frontend (Desktop + Admin): ReactJS (TypeScript) + (Material UI)[https://mui.com/material-ui/getting-started/installation/] + (Next.js)[https://nextjs.org/docs/getting-started] + (React Query)[https://tanstack.com/query/latest/overview]
+	•	Frontend (Desktop + Admin): ReactJS (TypeScript) + (Material UI)[https://mui.com/material-ui/getting-started/installation/] + (Next.js)[https://nextjs.org/docs/getting-started] + (React Query)[https://tanstack.com/query/latest/overview] + (SWR)[https://swr.vercel.app/] for data fetching
 	•	Mobile App: Responsive PWA built in ReactJS
 	•	Backend: Python with (FastAPI)[https://fastapi.tiangolo.com/], (Celery)[https://docs.celeryproject.org/en/stable/index.html] for async tasks and (SQLAlchemy)[https://docs.sqlalchemy.org/en/20/index.html] for ORM, (Pydantic)[https://docs.pydantic.dev/latest/] for data validation, (mypy)[https://mypy.readthedocs.io/en/stable/] for type checking
 	•	Distributed Computing (Optional): (Ray.io)[https://docs.ray.io/en/latest/] for scheduling/optimization algorithms

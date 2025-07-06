@@ -149,17 +149,47 @@ curl -H "Authorization: Bearer YOUR_TOKEN" \
 
 ## 📚 Documentation
 
-Comprehensive documentation is available in the [`docs/`](./docs/) folder:
+Comprehensive documentation is available in the [`docs/`](./docs/) folder, organized by category:
+
+### 🎯 Quick Start
 
 - **[Getting Started](./docs/START_HERE.md)** - Detailed setup guide
 - **[Python Environment](./docs/PYTHON_ENVIRONMENT_SETUP.md)** - pyenv + direnv setup
+- **[Documentation Index](./docs/README.md)** - Complete documentation map
+
+### 🏗️ Architecture & Design
+
+- **[System Overview](./docs/architecture/system-overview.md)** - DDD, CQRS, and enterprise patterns
+- **[API Design Guidelines](./docs/api/design-guidelines.md)** - RESTful API best practices
+- **[Database Design Guidelines](./docs/database/design-guidelines.md)** - Schema design and optimization
+
+### 💻 Development
+
+- **[Clean Code Guidelines](./docs/development/clean-code-guidelines.md)** - Code quality and best practices
+- **[Testing Strategy](./docs/development/testing-strategy.md)** - TDD, unit, integration, and E2E testing
+- **[Frontend Architecture](./docs/frontend/architecture-guidelines.md)** - React, MUI, and modern frontend patterns
+
+### 📋 Project Management
+
 - **[Authentication](./docs/AUTH_SYSTEM_README.md)** - Auth system documentation
 - **[Project Roadmap](./docs/PROJECT_ROADMAP.md)** - Development roadmap
 - **[Implementation Strategy](./docs/IMPLEMENTATION_STRATEGY.md)** - Technical strategy
 
+### 📖 Learning Resources
+
+The documentation is enhanced with insights from industry-leading technical books in `/books/`:
+
+- Clean Code practices and refactoring patterns
+- API design and REST principles
+- Database design and performance optimization
+- React design patterns and frontend architecture
+- Testing strategies and quality assurance
+- Domain-driven design and enterprise patterns
+
 ## 🏃‍♂️ Features
 
 ### ✅ Implemented
+
 - 🔐 JWT-based authentication with role-based access control
 - 👥 User management with roles and permissions
 - 🗄️ PostgreSQL database with SQLAlchemy ORM
@@ -170,12 +200,14 @@ Comprehensive documentation is available in the [`docs/`](./docs/) folder:
 - 📖 Comprehensive API documentation
 
 ### 🚧 In Progress
+
 - 🎨 Frontend user interface
 - 📱 Equipment tracking features
 - 📊 Reporting system
 - 📋 Daily equipment reports
 
 ### 📋 Planned
+
 - 📱 Mobile application
 - 📈 Analytics dashboard
 - 🔔 Notification system
@@ -196,11 +228,13 @@ python -m pytest --cov=app
 ## 🚀 Deployment
 
 ### Development
+
 ```bash
 docker-compose up -d
 ```
 
 ### Production
+
 ```bash
 docker-compose -f docker-compose.yml -f docker-compose.prod.yml up -d
 ```
@@ -222,10 +256,11 @@ This project is proprietary and confidential. All rights reserved.
 ## 🆘 Support
 
 For support and questions:
+
 - Check the [documentation](./docs/)
 - Run `./scripts/quickref.sh` for quick commands
 - Use `./scripts/dev.sh status` to diagnose issues
 
 ---
 
-**Built with ❤️ for efficient civil works equipment management**
+Built with ❤️ for efficient civil works equipment management
