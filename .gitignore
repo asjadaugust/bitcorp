@@ -1,0 +1,136 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.whl
+*.so
+
+# Distribution / packaging
+.Python
+env/
+venv/
+ENV/
+env.bak/
+venv.bak/
+dist/
+build/
+eggs/
+lib/
+lib64/
+*.egg-info/
+*.egg
+
+# Virtual environments (various formats)
+.venv/
+.env/
+pyvenv.cfg
+pip-selfcheck.json
+
+# direnv
+.direnv/
+.envrc.backup
+
+# pyenv
+.python-version
+
+# Environment variables and secrets
+.env
+.env.local
+.env.development
+.env.production
+*.env
+
+# VS Code settings
+.vscode/
+.vscode-test/
+
+# PyCharm
+.idea/
+*.iml
+*.iws
+
+# Pytest
+.cache
+pytest_cache/
+.pytest_cache/
+.coverage
+htmlcov/
+.tox/
+.nox/
+
+# mypy
+.mypy_cache/
+.dmypy.json
+dmypy.json
+
+# Jupyter Notebook
+.ipynb_checkpoints
+
+# Docker
+*.dockerfile
+.dockerignore
+docker-compose.override.yml
+docker-compose.local.yml
+
+# Database
+*.db
+*.sqlite
+*.sqlite3
+
+# Logs
+*.log
+logs/
+backend/server.log
+backend/logs/
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Node.js (for frontend)
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.npm
+.pnp.*
+
+# Upload directories
+uploads/
+static/uploads/
+media/
+
+# Backup files
+*.bak
+*.backup
+*.swp
+*.swo
+*~
+
+# Temporary files
+*.tmp
+*.temp
+.temp/
+.tmp/
+
+# Archive folders (keep old code but don't track)
+old_code/
+archive/
+backup/
+books/
+
+# Documentation build outputs
+docs/_build/
+docs/build/
+site/
+
+# IDEs
+*.sublime-project
+*.sublime-workspace
+*.code-workspace
