@@ -4,29 +4,31 @@
 
 This documentation is organized into focused sections to support learning and development:
 
+### 📊 Project Overview
+- **[Project Status Report](./PROJECT_STATUS.md)** - Comprehensive project status, features, and roadmap
+- **[Implementation Strategy](./IMPLEMENTATION_STRATEGY.md)** - Technical implementation approach
+- **[Project Roadmap](./PROJECT_ROADMAP.md)** - Development timeline and milestones
+
 ### 🏗️ Architecture
+- **[System Overview](./architecture/system-overview.md)** - DDD, CQRS, and enterprise patterns
+- **[Security Architecture](./architecture/security-architecture.md)** - Defense-in-depth, RBAC, encryption
 - **[System Architecture](./architecture/system-architecture.md)** - High-level system design and component interactions
-- **[Database Design](./architecture/database-design.md)** - ERD, schema design, and data relationships
-- **[API Architecture](./architecture/api-architecture.md)** - RESTful API design and patterns
-- **[Security Architecture](./architecture/security-architecture.md)** - Authentication, authorization, and data protection
 
 ### 💻 Development
-- **[Development Setup](./development/setup.md)** - Local development environment configuration
-- **[Coding Standards](./development/coding-standards.md)** - Code style, conventions, and best practices
-- **[Testing Strategy](./development/testing-strategy.md)** - Unit, integration, and e2e testing approaches
-- **[Git Workflow](./development/git-workflow.md)** - Branching strategy and collaboration guidelines
+- **[Clean Code Guidelines](./development/clean-code-guidelines.md)** - Code quality and best practices
+- **[Testing Strategy](./development/testing-strategy.md)** - TDD, unit, integration, and E2E testing
+- **[Testing Strategy (Comprehensive)](./development/testing-strategy-comprehensive.md)** - Advanced testing patterns
+- **[Development Setup](development/setup.md)** - Local development environment configuration
 
 ### 🗄️ Database
+- **[Database Design Guidelines](./database/design-guidelines.md)** - Schema design and optimization
 - **[Schema Documentation](./database/schema.md)** - Detailed table structures and relationships
 - **[Migration Guide](./database/migrations.md)** - Database versioning and migration strategies
-- **[Data Dictionary](./database/data-dictionary.md)** - Complete field descriptions and constraints
 - **[Performance Optimization](./database/performance.md)** - Indexing, query optimization, and scaling
 
 ### 🔌 API
-- **[API Reference](./api/reference.md)** - Complete endpoint documentation
-- **[Authentication](./api/authentication.md)** - JWT implementation and security
-- **[Rate Limiting](./api/rate-limiting.md)** - API usage policies and throttling
-- **[Error Handling](./api/error-handling.md)** - Standardized error responses
+- **[API Design Guidelines](./api/design-guidelines.md)** - RESTful API best practices
+- **[API Reference](./api/reference.md)** - Comprehensive API documentation
 
 ### 🎨 Frontend
 - **[UI/UX Guidelines](./frontend/ui-guidelines.md)** - Design system and component library
@@ -55,13 +57,13 @@ This documentation is organized into focused sections to support learning and de
 ## 🎯 Quick Start Paths
 
 ### For Backend Developers
-1. [Development Setup](./development/setup.md)
+1. [Development Setup](development/setup.md)
 2. [Database Design](./architecture/database-design.md)
 3. [API Architecture](./architecture/api-architecture.md)
 4. [Getting Started Tutorial](./tutorials/getting-started.md)
 
 ### For Frontend Developers
-1. [Development Setup](./development/setup.md)
+1. [Development Setup](development/setup.md)
 2. [UI/UX Guidelines](./frontend/ui-guidelines.md)
 3. [State Management](./frontend/state-management.md)
 4. [API Integration Tutorial](./tutorials/api-integration.md)
