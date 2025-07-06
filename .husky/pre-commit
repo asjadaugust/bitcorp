@@ -1,0 +1,76 @@
+echo "🔍 Running pre-commit checks..."
+
+# Frontend checks
+echo "📱 Checking Frontend..."
+cd frontend
+
+echo "🔍 Running TypeScript type check..."
+npx tsc --noEmit --skipLibCheck
+
+if [ $? -ne 0 ]; then
+  echo "❌ TypeScript type check failed!"
+  exit 1
+fi
+
+echo "🔍 Running frontend linter..."
+npm run lint
+
+if [ $? -ne 0 ]; then
+  echo "❌ Frontend linting failed!"
+  exit 1
+fi
+
+# Backend checks
+echo "🐍 Checking Backend..."
+cd ../backend
+
+# Check if virtual environment exists
+if [ ! -d ".venv" ] && [ ! -d "venv" ]; then
+  echo "⚠️  No Python virtual environment found for backend."
+  echo "💡 Run './scripts/setup-backend.sh' to set up the backend environment."
+  echo "📱 Frontend checks passed, proceeding with commit..."
+  exit 0
+fi
+
+# Activate virtual environment
+if [ -d ".venv" ]; then
+  source .venv/bin/activate
+elif [ -d "venv" ]; then
+  source venv/bin/activate
+fi
+
+# Check if required packages are installed
+if ! python -c "import black" 2>/dev/null; then
+  echo "⚠️  Backend code quality tools not installed."
+  echo "💡 Run 'pip install -r requirements.txt' in the backend directory."
+  echo "📱 Frontend checks passed, proceeding with commit..."
+  exit 0
+fi
+
+echo "🔍 Running Black formatter check..."
+python -m black --check --diff .
+
+if [ $? -ne 0 ]; then
+  echo "❌ Black formatting check failed!"
+  echo "💡 Fix with: cd backend && python -m black ."
+  exit 1
+fi
+
+echo "🔍 Running isort import check..."
+python -m isort --check-only --diff .
+
+if [ $? -ne 0 ]; then
+  echo "❌ isort check failed!"
+  echo "💡 Fix with: cd backend && python -m isort ."
+  exit 1
+fi
+
+echo "🔍 Running flake8 linter..."
+python -m flake8 .
+
+if [ $? -ne 0 ]; then
+  echo "❌ flake8 linting failed!"
+  exit 1
+fi
+
+echo "✅ All frontend and backend checks passed!"
