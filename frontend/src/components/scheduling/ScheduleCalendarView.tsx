@@ -7,10 +7,10 @@ import {
   CardContent,
   Typography,
   Chip,
-  Grid,
   Paper,
   CircularProgress,
 } from '@mui/material'
+import Grid from '@mui/material/Grid2'
 import { format, startOfMonth, endOfMonth, eachDayOfInterval, isToday } from 'date-fns'
 import type { EquipmentSchedule } from '../../types/scheduling'
 
@@ -75,7 +75,7 @@ export function ScheduleCalendarView({
         <Grid container spacing={1}>
           {/* Week header */}
           {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map(day => (
-            <Grid key={day} item xs={1.71}>
+            <Grid key={day} size={{ xs: 1.71 }}>
               <Typography
                 variant="caption"
                 align="center"
@@ -97,7 +97,7 @@ export function ScheduleCalendarView({
             const isCurrentDay = isToday(date)
             
             return (
-              <Grid key={date.toISOString()} item xs={1.71}>
+              <Grid key={date.toISOString()} size={{ xs: 1.71 }}>
                 <Paper
                   sx={{
                     minHeight: '120px',
