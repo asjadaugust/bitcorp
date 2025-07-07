@@ -32,6 +32,7 @@ This documentation is organized into focused sections to support learning and de
 - **[API Reference](./api/reference.md)** - Comprehensive API documentation
 
 ### 🎨 Frontend
+- **[Architecture Guidelines](./frontend/architecture-guidelines.md)** - SWR data fetching, React patterns, and component architecture
 - **[UI/UX Guidelines](./frontend/ui-guidelines.md)** - Design system and component library
 - **[State Management](./frontend/state-management.md)** - Redux/Zustand patterns and data flow
 - **[Performance](./frontend/performance.md)** - Code splitting, lazy loading, and optimization
@@ -48,6 +49,19 @@ This documentation is organized into focused sections to support learning and de
 - **[CI/CD Pipeline](./deployment/cicd.md)** - Automated testing and deployment
 - **[Docker Setup](./deployment/docker.md)** - Containerization and orchestration
 - **[Monitoring](./deployment/monitoring.md)** - Logging, metrics, and alerting
+
+## 🔄 Recent Major Updates
+
+### SWR Migration (Latest)
+The frontend has been migrated from axios-based services to SWR for improved data fetching, caching, and real-time updates:
+
+- **Equipment Management**: Full SWR integration with optimistic updates and real-time synchronization
+- **Improved Performance**: Client-side caching, automatic revalidation, and reduced API calls
+- **Better UX**: Loading states, error boundaries, and optimistic UI updates
+- **Type Safety**: Comprehensive TypeScript integration with SWR hooks
+- **Testing**: Unit tests with Jest and React Testing Library, E2E tests with Playwright
+
+For detailed information about the SWR migration, see [Frontend Architecture Guidelines](./frontend/architecture-guidelines.md).
 
 ### 📚 Tutorials
 - **[Getting Started](./tutorials/getting-started.md)** - Step-by-step setup and first features

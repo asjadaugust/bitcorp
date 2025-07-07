@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import "./globals.css";
-import { QueryProvider } from "@/components/providers/QueryProvider";
+import { SWRProvider } from "@/components/providers/SWRProvider";
 import { ThemeProvider } from "@/components/providers/ThemeProvider";
 
 export const metadata: Metadata = {
@@ -17,9 +17,9 @@ export default function RootLayout({
     <html lang="en">
       <body>
         <ThemeProvider>
-          <QueryProvider>
+          <SWRProvider>
             {children}
-          </QueryProvider>
+          </SWRProvider>
         </ThemeProvider>
       </body>
     </html>
