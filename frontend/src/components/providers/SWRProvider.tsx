@@ -1,7 +1,7 @@
 'use client'
 
 import { SWRConfig } from 'swr'
-import { swrFetcher } from '@/lib/swr-fetcher'
+import { swrFetcher } from '../../lib/swr-fetcher'
 
 export function SWRProvider({ children }: { children: React.ReactNode }) {
   return (

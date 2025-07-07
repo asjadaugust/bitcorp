@@ -1,6 +1,6 @@
 import useSWR from 'swr'
 import useSWRMutation from 'swr/mutation'
-import { swrFetcher } from '@/lib/swr-fetcher'
+import { swrFetcher } from '../lib/swr-fetcher'
 import type {
   EquipmentSchedule,
   EquipmentScheduleCreateRequest,
