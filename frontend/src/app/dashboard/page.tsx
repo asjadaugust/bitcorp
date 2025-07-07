@@ -229,7 +229,7 @@ export default function DashboardPage() {
         {/* Stats Grid */}
         <Grid container spacing={3} sx={{ mb: 4 }}>
           {stats.map((stat, index) => (
-            <Grid size={{ xs: 12, sm: 6, lg: 3 }} key={index}>
+            <Grid item xs={12} sm={6} lg={3} key={index}>
               <Card>
                 <CardContent>
                   <Box sx={{ display: 'flex', alignItems: 'center' }}>
@@ -280,7 +280,7 @@ export default function DashboardPage() {
             {quickActions
               .filter((action) => action.available)
               .map((action, index) => (
-                <Grid size={{ xs: 12, sm: 6, lg: 3 }} key={index}>
+                <Grid item xs={12} sm={6} lg={3} key={index}>
                   <Card
                     sx={{
                       cursor: 'pointer',
