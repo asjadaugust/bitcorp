@@ -85,6 +85,14 @@ export default function DashboardPage() {
       available: true,
     },
     {
+      title: 'Equipment Scheduling',
+      description: 'Schedule equipment assignments and track availability',
+      icon: Calendar,
+      href: '/scheduling',
+      color: 'info.main',
+      available: true,
+    },
+    {
       title: 'User Management',
       description: 'Manage system users and permissions',
       icon: Users,
