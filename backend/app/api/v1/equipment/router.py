@@ -29,7 +29,7 @@ async def get_equipment(
     year_from: Optional[int] = Query(None, ge=1900, description="Year manufactured from"),
     year_to: Optional[int] = Query(None, le=2030, description="Year manufactured to"),
     sort_by: Optional[str] = Query("name", description="Sort field"),
-    sort_order: Optional[str] = Query("asc", regex="^(asc|desc)$", description="Sort order"),
+    sort_order: Optional[str] = Query("asc", description="Sort order (asc or desc)"),
     db: Session = Depends(get_db)
 ):
     """Get paginated list of equipment with filtering and search"""

@@ -24,8 +24,44 @@ export const useAuth = () => {
 
   // Initialize auth state on mount
   useEffect(() => {
-    initialize()
-  }, [initialize])
+    let mounted = true
+    
+    const initializeAuth = async () => {
+      setLoading(true)
+      
+      try {
+        await initialize()
+        
+        // If we have tokens but no user, try to fetch user data
+        const store = useAuthStore.getState()
+        if (store.isAuthenticated && store.accessToken && !store.user && mounted) {
+          try {
+            const userData = await authAPI.getCurrentUser()
+            if (mounted) {
+              setUser(userData)
+            }
+          } catch {
+            // If user fetch fails, clear auth state
+            if (mounted) {
+              logoutStore()
+            }
+          }
+        }
+      } catch (error) {
+        console.error('Auth initialization error:', error)
+      } finally {
+        if (mounted) {
+          setLoading(false)
+        }
+      }
+    }
+
+    initializeAuth()
+    
+    return () => {
+      mounted = false
+    }
+  }, [initialize, setUser, setLoading, logoutStore])
 
   // Get current user query using SWR
   const { data: currentUser, isLoading: isUserLoading } = useSWR(
@@ -127,9 +163,12 @@ export const useAuth = () => {
     hasRole,
     hasPermission,
 
-    // Mutation states
+    // Mutation states for more granular loading control
     isLoginPending: isLoggingIn,
     isRegisterPending: isRegistering,
-    isLogoutPending: false, // SWR mutation doesn't expose this for logout
+    isLogoutPending: false,
+    
+    // Additional state for better UX
+    isInitialized: !isLoading && !isUserLoading,
   }
 }
