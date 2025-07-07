@@ -20,26 +20,15 @@
     "@emotion/react": "^11.14.0",
     "@emotion/styled": "^11.14.1",
     "@hookform/resolvers": "^5.1.1",
-<<<<<<< HEAD
-    "@mui/icons-material": "^7.2.0",
-    "@mui/material": "^7.2.0",
-    "@mui/system": "^7.2.0",
-    "@mui/x-date-pickers": "^8.7.0",
-=======
     "@mui/icons-material": "^6.4.12",
     "@mui/material": "^6.4.12",
     "@mui/system": "^6.4.12",
     "@mui/x-date-pickers": "^7.29.4",
->>>>>>> 9ebe312 (fix: Critical frontend build errors resolved)
     "@tanstack/react-query": "^5.81.5",
     "@tanstack/react-query-devtools": "^5.81.5",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
-<<<<<<< HEAD
     "date-fns": "^4.1.0",
-=======
-    "date-fns": "^3.6.0",
->>>>>>> 9ebe312 (fix: Critical frontend build errors resolved)
     "next": "15.3.5",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
