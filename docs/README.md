@@ -6,6 +6,8 @@ This documentation is organized into focused sections to support learning and de
 
 ### 📊 Project Overview
 - **[Complete Implementation Summary](./COMPLETE_IMPLEMENTATION_SUMMARY.md)** - Comprehensive summary of all accomplishments and business value
+- **[Next Phase Strategic Roadmap](./NEXT_PHASE_STRATEGIC_ROADMAP.md)** - 🆕 Detailed 12-week development plan with educational integration
+- **[Strategic Development Plan](./NEXT_STEPS_STRATEGIC_DEVELOPMENT_PLAN.md)** - Strategic approach for next development phases
 - **[Project Status Report](./PROJECT_STATUS.md)** - Comprehensive project status, features, and roadmap
 - **[Implementation Strategy](./IMPLEMENTATION_STRATEGY.md)** - Technical implementation approach
 - **[Project Roadmap](./PROJECT_ROADMAP.md)** - Development timeline and milestones
