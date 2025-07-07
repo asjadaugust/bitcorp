@@ -16,7 +16,6 @@ venv.bak/
 dist/
 build/
 eggs/
-lib/
 lib64/
 *.egg-info/
 *.egg
