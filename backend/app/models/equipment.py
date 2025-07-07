@@ -20,9 +20,9 @@ class Equipment(BaseModel):
     fuel_capacity = Column(Numeric(8, 2))
     status = Column(String(50), default='available')  # available, in_use, maintenance, retired
     hourmeter_reading = Column(Integer, default=0)
-    odometer_reading = Column(Integer, default=0)
-    specifications = Column(JSON, default={})
-    images = Column(JSON, default=[])
+    odometer_reading = Column(Integer, nullable=True)  # Not all equipment has odometers
+    specifications = Column(JSON, default=lambda: {})
+    images = Column(JSON, default=lambda: [])
     notes = Column(Text)
     is_active = Column(Boolean, default=True)
     

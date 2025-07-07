@@ -1,0 +1,140 @@
+name: Build and Test
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  backend:
+    runs-on: ubuntu-latest
+    
+    services:
+      postgres:
+        image: postgres:15
+        env:
+          POSTGRES_PASSWORD: password
+          POSTGRES_USER: bitcorp
+          POSTGRES_DB: bitcorp_erp
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 5432:5432
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Set up Python 3.11
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.11'
+
+    - name: Cache pip dependencies
+      uses: actions/cache@v3
+      with:
+        path: ~/.cache/pip
+        key: ${{ runner.os }}-pip-${{ hashFiles('backend/requirements.txt') }}
+        restore-keys: |
+          ${{ runner.os }}-pip-
+
+    - name: Install backend dependencies
+      run: |
+        cd backend
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+
+    - name: Lint backend code
+      run: |
+        cd backend
+        python -m flake8 app --count --select=E9,F63,F7,F82 --show-source --statistics
+        python -m flake8 app --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
+
+    - name: Test backend imports and syntax
+      env:
+        DATABASE_URL: postgresql://bitcorp:password@localhost:5432/bitcorp_erp
+      run: |
+        cd backend
+        python -c "import app.main; print('✅ Backend imports successfully')"
+        python -c "from app.main import app; print('✅ FastAPI app created successfully')"
+
+  frontend:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Set up Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '18'
+        cache: 'npm'
+        cache-dependency-path: frontend/package-lock.json
+
+    - name: Install frontend dependencies
+      run: |
+        cd frontend
+        npm ci
+
+    - name: Lint frontend code
+      run: |
+        cd frontend
+        npm run lint
+
+    - name: Type check frontend
+      run: |
+        cd frontend
+        npm run type-check
+
+    - name: Build frontend
+      run: |
+        cd frontend
+        npm run build
+
+  integration:
+    runs-on: ubuntu-latest
+    needs: [backend, frontend]
+
+    services:
+      postgres:
+        image: postgres:15
+        env:
+          POSTGRES_PASSWORD: password
+          POSTGRES_USER: bitcorp
+          POSTGRES_DB: bitcorp_erp
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 5432:5432
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Set up Python 3.11
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.11'
+
+    - name: Set up Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '18'
+        cache: 'npm'
+        cache-dependency-path: frontend/package-lock.json
+
+    - name: Install dependencies
+      run: |
+        cd backend && pip install -r requirements.txt
+        cd ../frontend && npm ci
+
+    - name: Run integration build test
+      env:
+        DATABASE_URL: postgresql://bitcorp:password@localhost:5432/bitcorp_erp
+      run: |
+        make build

@@ -9,7 +9,7 @@ class Settings(BaseSettings):
     PROJECT_NAME: str = "Bitcorp ERP"
     
     # Database Settings
-    DATABASE_URL: str = "postgresql://bitcorp:password@localhost/bitcorp_erp"
+    DATABASE_URL: str = "postgresql://bitcorp:password@localhost:5433/bitcorp_erp"
     
     # Redis Settings
     REDIS_URL: str = "redis://localhost:6379/0"
@@ -21,7 +21,10 @@ class Settings(BaseSettings):
     REFRESH_TOKEN_EXPIRE_DAYS: int = 7
     
     # CORS Settings
-    ALLOWED_HOSTS: Union[str, List[str]] = ["http://localhost:3000", "http://localhost:5173"]
+    ALLOWED_HOSTS: Union[str, List[str]] = ["http://localhost:3000", "http://localhost:5173", "http://localhost:3001"]
+    CORS_ALLOW_CREDENTIALS: bool = True
+    CORS_ALLOW_METHODS: List[str] = ["GET", "POST", "PUT", "DELETE", "OPTIONS"]
+    CORS_ALLOW_HEADERS: List[str] = ["*"]
     
     # File Upload Settings
     MAX_FILE_SIZE: int = 10 * 1024 * 1024  # 10MB

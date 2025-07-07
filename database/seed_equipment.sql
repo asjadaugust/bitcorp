@@ -8,7 +8,7 @@
 INSERT INTO equipment (
     name, model, brand, equipment_type, serial_number, year_manufactured,
     purchase_cost, current_value, hourly_rate, fuel_type, fuel_capacity,
-    status, hourmeter_reading, notes, company_id, specifications,
+    status, hourmeter_reading, odometer_reading, images, notes, company_id, specifications,
     created_at, updated_at, is_active
 ) VALUES 
 -- CAT 320 Hydraulic Excavator
@@ -26,6 +26,8 @@ INSERT INTO equipment (
     400.0,
     'available',
     245,
+    NULL,
+    '[]',
     'Primary excavator for foundation and utility work',
     1,
     '{"operating_weight": "20,300 kg", "engine_power": "122 kW", "bucket_capacity": "1.0 m³", "max_digging_depth": "6.7 m"}',
@@ -34,6 +36,7 @@ INSERT INTO equipment (
     true
 ),
 
+-- John Deere 850K Bulldozer
 -- John Deere 850K Bulldozer
 (
     'John Deere 850K Bulldozer',
@@ -49,6 +52,8 @@ INSERT INTO equipment (
     520.0,
     'in_use',
     1247,
+    NULL,
+    '[]',
     'Heavy-duty dozer for site preparation and grading',
     1,
     '{"operating_weight": "18,370 kg", "engine_power": "149 kW", "blade_capacity": "3.8 m³", "max_blade_height": "0.98 m"}',
@@ -72,6 +77,8 @@ INSERT INTO equipment (
     350.0,
     'maintenance',
     2156,
+    45230,
+    '[]',
     'All-terrain mobile crane, annual safety inspection due',
     1,
     '{"max_lifting_capacity": "70 tonnes", "boom_length": "50 m", "max_reach": "46 m", "travel_speed": "85 km/h"}',
@@ -95,6 +102,8 @@ INSERT INTO equipment (
     280.0,
     'available',
     856,
+    NULL,
+    '[]',
     'Versatile loader for material handling and loading trucks',
     1,
     '{"operating_weight": "12,770 kg", "engine_power": "129 kW", "bucket_capacity": "2.3 m³", "max_dump_height": "2.8 m"}',
@@ -118,6 +127,8 @@ INSERT INTO equipment (
     480.0,
     'available',
     324,
+    8950,
+    '[]',
     'Heavy-duty hauler for transporting materials across rough terrain',
     1,
     '{"payload_capacity": "37 tonnes", "body_capacity": "24 m³", "max_speed": "55 km/h", "gradeability": "35%"}',
@@ -141,6 +152,8 @@ INSERT INTO equipment (
     95.0,
     'available',
     678,
+    NULL,
+    '[]',
     'Single drum compactor for soil and asphalt compaction',
     1,
     '{"operating_weight": "13,500 kg", "drum_width": "2,130 mm", "compaction_force": "320 kN", "travel_speed": "12 km/h"}',
@@ -164,6 +177,8 @@ INSERT INTO equipment (
     151.0,
     'retired',
     3245,
+    NULL,
+    '[]',
     'Retired from service due to age, scheduled for auction',
     1,
     '{"max_platform_height": "38.15 m", "max_reach": "24.38 m", "platform_capacity": "340 kg", "platform_size": "2.44 x 1.22 m"}',
@@ -187,6 +202,8 @@ INSERT INTO equipment (
     450.0,
     'out_of_order',
     987,
+    NULL,
+    '[]',
     'Hydraulic pump failure - awaiting parts for repair',
     1,
     '{"operating_weight": "34,900 kg", "engine_power": "202 kW", "bucket_capacity": "1.6 m³", "max_digging_depth": "7.2 m"}',
@@ -210,6 +227,8 @@ INSERT INTO equipment (
     110.0,
     'available',
     156,
+    NULL,
+    '[]',
     'New double drum roller for asphalt compaction',
     1,
     '{"operating_weight": "10,500 kg", "drum_width": "1,680 mm", "vibration_frequency": "67 Hz", "travel_speed": "11 km/h"}',
@@ -233,6 +252,8 @@ INSERT INTO equipment (
     185.0,
     'in_use',
     1455,
+    NULL,
+    '[]',
     'Versatile backhoe for utility and small excavation work',
     1,
     '{"operating_weight": "8,200 kg", "engine_power": "74 kW", "loader_capacity": "1.0 m³", "backhoe_capacity": "0.25 m³"}',

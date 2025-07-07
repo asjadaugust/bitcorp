@@ -1,4 +1,4 @@
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import BaseModel, ConfigDict, Field, field_validator
 from typing import Optional, List, Dict, Any
 from datetime import datetime
 from decimal import Decimal
@@ -22,6 +22,7 @@ class EquipmentType(str, Enum):
     GENERATOR = "generator"
     COMPACTOR = "compactor"
     GRADER = "grader"
+    LIFT = "lift"
     OTHER = "other"
 
 
@@ -78,12 +79,19 @@ class EquipmentResponse(EquipmentBase):
     id: int
     company_id: int
     status: EquipmentStatus
-    hourmeter_reading: int
-    odometer_reading: int
-    images: List[str]
+    hourmeter_reading: int = Field(default=0, description="Hour meter reading")
+    odometer_reading: Optional[int] = Field(default=None, description="Odometer reading (for vehicles)")
+    images: List[str] = Field(default_factory=list, description="Equipment images")
     is_active: bool
     created_at: datetime
     updated_at: datetime
+    
+    @field_validator('images', mode='before')
+    @classmethod
+    def validate_images(cls, v):
+        if v is None:
+            return []
+        return v
 
 
 class EquipmentListResponse(BaseModel):
