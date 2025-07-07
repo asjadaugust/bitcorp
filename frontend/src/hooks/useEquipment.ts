@@ -332,7 +332,7 @@ export const useEquipmentStats = () => {
     })
 
     // Calculate statistics
-    data.equipment.forEach(equipment => {
+    data.equipment.forEach((equipment: Equipment) => {
       result.by_status[equipment.status]++
       
       if (result.by_type[equipment.equipment_type]) {
