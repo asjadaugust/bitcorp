@@ -39,17 +39,10 @@ type LoginFormData = z.infer<typeof loginSchema>
 function LoginForm() {
   const router = useRouter()
   const searchParams = useSearchParams()
-  const { login, isAuthenticated, isLoginPending, error } = useAuth()
+  const { login, isAuthenticated, isLoginPending, error, isInitialized } = useAuth()
   const [showPassword, setShowPassword] = React.useState(false)
   
   const message = searchParams.get('message')
-
-  // Redirect if already authenticated
-  useEffect(() => {
-    if (isAuthenticated) {
-      router.push('/dashboard')
-    }
-  }, [isAuthenticated, router])
 
   const {
     control,
@@ -59,8 +52,40 @@ function LoginForm() {
     resolver: zodResolver(loginSchema),
   })
 
+  // Redirect if already authenticated - but only after initialization
+  useEffect(() => {
+    if (isInitialized && isAuthenticated) {
+      router.push('/dashboard')
+    }
+  }, [isAuthenticated, isInitialized, router])
+
   const onSubmit = (data: LoginFormData) => {
     login(data)
+  }
+
+  // Show loading state while initializing or checking authentication to prevent flicker
+  if (!isInitialized || (isInitialized && isAuthenticated)) {
+    return (
+      <Box
+        sx={{
+          minHeight: '100vh',
+          background: 'linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+        }}
+      >
+        <Container maxWidth="sm">
+          <Box sx={{ textAlign: 'center' }}>
+            <Typography variant="h6" color="text.secondary"
+              sx={{ mb: 2 }}
+            >
+              {isAuthenticated ? 'Redirecting to dashboard...' : 'Loading...'}
+            </Typography>
+          </Box>
+        </Container>
+      </Box>
+    )
   }
 
   return (

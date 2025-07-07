@@ -123,3 +123,7 @@ class EquipmentMaintenanceRecord(BaseModel):
     performed_date: datetime
     next_maintenance_date: Optional[datetime] = None
     notes: Optional[str] = None
+
+
+class EquipmentStatusUpdate(BaseModel):
+    status: EquipmentStatus = Field(..., description="New equipment status")

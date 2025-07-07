@@ -46,6 +46,7 @@ export const useEquipmentList = (params: EquipmentSearchParams = {}) => {
   
   const { data, error, isLoading, isValidating, mutate: refetch } = useSWR<EquipmentListResponse>(
     key,
+    (url: string) => swrFetcher<EquipmentListResponse>(url),
     {
       revalidateOnFocus: false,
       dedupingInterval: 5000, // 5 seconds
@@ -168,7 +169,7 @@ export const useCreateEquipment = () => {
   const { trigger, isMutating, error } = useSWRMutation(
     '/equipment',
     async (url: string, { arg }: { arg: EquipmentCreateRequest }) =>
-      mutationFetcher(url, { method: 'POST', data: arg }),
+      mutationFetcher<Equipment>(url, { method: 'POST', data: arg }),
     {
       onSuccess: () => {
         // Invalidate all equipment lists
@@ -189,7 +190,7 @@ export const useUpdateEquipment = () => {
   const { trigger, isMutating, error } = useSWRMutation(
     '/equipment/update',
     async (url: string, { arg }: { arg: { id: number; data: EquipmentUpdateRequest } }) =>
-      mutationFetcher(`/equipment/${arg.id}`, { method: 'PUT', data: arg.data }),
+      mutationFetcher<Equipment>(`/equipment/${arg.id}`, { method: 'PUT', data: arg.data }),
     {
       onSuccess: () => {
         // Invalidate all equipment caches

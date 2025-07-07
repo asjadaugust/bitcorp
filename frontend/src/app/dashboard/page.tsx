@@ -37,16 +37,16 @@ import {
 } from '@mui/icons-material';
 
 export default function DashboardPage() {
-  const { user, isAuthenticated, isLoading, logout, hasRole } = useAuth();
+  const { user, isAuthenticated, logout, hasRole, isInitialized } = useAuth();
   const router = useRouter();
 
   useEffect(() => {
-    if (!isLoading && !isAuthenticated) {
+    if (isInitialized && !isAuthenticated) {
       router.push('/login');
     }
-  }, [isAuthenticated, isLoading, router]);
+  }, [isAuthenticated, isInitialized, router]);
 
-  if (isLoading) {
+  if (!isInitialized || (isInitialized && !isAuthenticated)) {
     return (
       <Box
         sx={{
@@ -59,7 +59,9 @@ export default function DashboardPage() {
       >
         <Box sx={{ textAlign: 'center' }}>
           <CircularProgress size={48} sx={{ mb: 2 }} />
-          <Typography color="text.secondary">Loading dashboard...</Typography>
+          <Typography color="text.secondary">
+            {!isAuthenticated ? 'Redirecting to login...' : 'Loading dashboard...'}
+          </Typography>
         </Box>
       </Box>
     );
