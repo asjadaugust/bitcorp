@@ -1,10 +1,6 @@
 import useSWR from 'swr'
 import useSWRMutation from 'swr/mutation'
-<<<<<<< HEAD
-import { fetcher } from '../lib/swr-fetcher'
-=======
-import { swrFetcher, mutationFetcher } from '../lib/swr-fetcher'
->>>>>>> 9ebe312 (fix: Critical frontend build errors resolved)
+import { swrFetcher } from '../lib/swr-fetcher'
 import type {
   EquipmentSchedule,
   EquipmentScheduleCreateRequest,
@@ -30,20 +26,12 @@ export function useScheduleList(filters?: ScheduleFilters) {
   
   const url = params.toString() ? `${BASE_URL}?${params.toString()}` : BASE_URL
   
-<<<<<<< HEAD
-  return useSWR<ScheduleListResponse>(url, fetcher)
-=======
   return useSWR<ScheduleListResponse>(url, swrFetcher)
->>>>>>> 9ebe312 (fix: Critical frontend build errors resolved)
 }
 
 // Get single schedule
 export function useSchedule(id: number) {
-<<<<<<< HEAD
-  return useSWR<EquipmentSchedule>(id ? `${BASE_URL}/${id}` : null, fetcher)
-=======
   return useSWR<EquipmentSchedule>(id ? `${BASE_URL}/${id}` : null, swrFetcher)
->>>>>>> 9ebe312 (fix: Critical frontend build errors resolved)
 }
 
 // Create new schedule
@@ -131,11 +119,7 @@ export function useEquipmentAvailability(equipmentId: number, startDate: string,
   const url = equipmentId && startDate && endDate 
     ? `/api/v1/scheduling/equipment/${equipmentId}/availability?start_date=${startDate}&end_date=${endDate}` 
     : null
-<<<<<<< HEAD
-  return useSWR<EquipmentAvailability>(url, fetcher)
-=======
   return useSWR<EquipmentAvailability>(url, swrFetcher)
->>>>>>> 9ebe312 (fix: Critical frontend build errors resolved)
 }
 
 // Check for scheduling conflicts
@@ -154,11 +138,7 @@ export function useScheduleConflicts(equipmentId: number, startDate: string, end
     ? `/api/v1/scheduling/conflicts/check?${params.toString()}`
     : null
     
-<<<<<<< HEAD
-  return useSWR<ScheduleConflict[]>(url, fetcher)
-=======
   return useSWR<ScheduleConflict[]>(url, swrFetcher)
->>>>>>> 9ebe312 (fix: Critical frontend build errors resolved)
 }
 
 // Get schedules for calendar view
@@ -174,11 +154,7 @@ export function useCalendarSchedules(startDate: string, endDate: string, equipme
   }
   
   const url = `/api/v1/scheduling?${params.toString()}`
-<<<<<<< HEAD
-  return useSWR<EquipmentSchedule[]>(url, fetcher)
-=======
   return useSWR<EquipmentSchedule[]>(url, swrFetcher)
->>>>>>> 9ebe312 (fix: Critical frontend build errors resolved)
 }
 
 // Get schedule statistics
@@ -198,9 +174,5 @@ export function useScheduleStats(filters?: Omit<ScheduleFilters, 'page' | 'per_p
     completed_schedules: number
     utilization_rate: number
     average_schedule_duration: number
-<<<<<<< HEAD
-  }>(url, fetcher)
-=======
   }>(url, swrFetcher)
->>>>>>> 9ebe312 (fix: Critical frontend build errors resolved)
 }

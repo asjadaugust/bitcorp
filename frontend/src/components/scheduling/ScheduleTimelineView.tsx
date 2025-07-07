@@ -155,10 +155,10 @@ export function ScheduleTimelineView({
                   secondary={
                     <Box>
                       <Typography variant="body2" color="text.secondary">
-                        <strong>Project:</strong> {schedule.project_name || 'No project specified'}
+                        <strong>Project:</strong> {schedule.project?.name || 'No project specified'}
                       </Typography>
                       <Typography variant="body2" color="text.secondary">
-                        <strong>Operator:</strong> {schedule.operator_name || 'No operator assigned'}
+                        <strong>Operator:</strong> {schedule.operator?.full_name || 'No operator assigned'}
                       </Typography>
                       <Typography variant="body2" color="text.secondary">
                         <strong>Duration:</strong> {formatDuration(schedule.start_datetime, schedule.end_datetime)}

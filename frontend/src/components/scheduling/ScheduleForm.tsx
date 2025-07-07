@@ -22,12 +22,7 @@ import {
   Cancel as CancelIcon,
   Warning as WarningIcon,
 } from '@mui/icons-material'
-<<<<<<< HEAD
-import { DateTimePicker } from '@mui/x-date-pickers/DateTimePicker'
-import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider'
-import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns'
-=======
->>>>>>> 9ebe312 (fix: Critical frontend build errors resolved)
+
 import { addHours, format } from 'date-fns'
 import {
   useCreateSchedule,
@@ -36,16 +31,8 @@ import {
   useEquipmentAvailability,
 } from '../../hooks/useScheduling'
 import { useEquipmentList } from '../../hooks/useEquipment'
-<<<<<<< HEAD
-import type {
-  EquipmentSchedule,
-  EquipmentScheduleCreateRequest,
-  EquipmentScheduleUpdateRequest,
-} from '../../types/scheduling'
-=======
 import type { EquipmentSchedule, EquipmentScheduleCreateRequest, EquipmentScheduleUpdateRequest } from '../../types/scheduling'
 import { EquipmentStatus } from '../../types/equipment'
->>>>>>> 9ebe312 (fix: Critical frontend build errors resolved)
 
 const scheduleSchema = z.object({
   equipment_id: z.number().min(1, 'Equipment is required'),
@@ -80,11 +67,7 @@ export const ScheduleForm: React.FC<ScheduleFormProps> = ({
 }) => {
   const { createSchedule, isCreating, error: createError } = useCreateSchedule()
   const { updateSchedule, isUpdating, error: updateError } = useUpdateSchedule()
-<<<<<<< HEAD
-  const { data: equipmentList } = useEquipmentList({ status: 'available' })
-=======
   const { data: equipmentList } = useEquipmentList({ status: EquipmentStatus.AVAILABLE })
->>>>>>> 9ebe312 (fix: Critical frontend build errors resolved)
   
   const [selectedEquipmentId, setSelectedEquipmentId] = useState<number | null>(
     schedule?.equipment_id || defaultEquipmentId || null
@@ -111,12 +94,8 @@ export const ScheduleForm: React.FC<ScheduleFormProps> = ({
   // Check equipment availability
   const { data: availability } = useEquipmentAvailability(
     selectedEquipmentId || 0,
-<<<<<<< HEAD
-    startDateTime ? format(startDateTime, 'yyyy-MM-dd') : ''
-=======
     startDateTime ? format(startDateTime, 'yyyy-MM-dd') : '',
     endDateTime ? format(endDateTime, 'yyyy-MM-dd') : ''
->>>>>>> 9ebe312 (fix: Critical frontend build errors resolved)
   )
 
   const {
@@ -195,12 +174,7 @@ export const ScheduleForm: React.FC<ScheduleFormProps> = ({
   const isEquipmentUnavailable = availability && !availability.is_available
 
   return (
-<<<<<<< HEAD
-    <LocalizationProvider dateAdapter={AdapterDateFns}>
-      <Box component="form" onSubmit={handleSubmit(onSubmit)} sx={{ width: '100%' }}>
-=======
     <Box component="form" onSubmit={handleSubmit(onSubmit)} sx={{ width: '100%' }}>
->>>>>>> 9ebe312 (fix: Critical frontend build errors resolved)
         {!isModal && (
           <Typography variant="h4" component="h1" gutterBottom>
             {isEditing ? 'Edit Schedule' : 'Create New Schedule'}
@@ -243,18 +217,11 @@ export const ScheduleForm: React.FC<ScheduleFormProps> = ({
 
         <Grid container spacing={3}>
           {/* Equipment Selection */}
-<<<<<<< HEAD
-          <Grid size={{xs: 12, md: 6}}>
-            <Controller
-              name="equipment_id"
-              control={control}
-=======
           <Grid item xs={12} md={6}>
             <Controller
               name="equipment_id"
               control={control}
-              // @ts-ignore
->>>>>>> 9ebe312 (fix: Critical frontend build errors resolved)
+              // @ts-expect-error
               render={({ field }) => (
                 <FormControl fullWidth required error={!!errors.equipment_id}>
                   <InputLabel>Equipment</InputLabel>
@@ -280,18 +247,11 @@ export const ScheduleForm: React.FC<ScheduleFormProps> = ({
           </Grid>
 
           {/* Project Selection */}
-<<<<<<< HEAD
-          <Grid size={{xs: 12, md: 6}}>
-            <Controller
-              name="project_id"
-              control={control}
-=======
           <Grid item xs={12} md={6}>
             <Controller
               name="project_id"
               control={control}
-              // @ts-ignore
->>>>>>> 9ebe312 (fix: Critical frontend build errors resolved)
+              // @ts-expect-error
               render={({ field }) => (
                 <FormControl fullWidth>
                   <InputLabel>Project (Optional)</InputLabel>
@@ -311,22 +271,11 @@ export const ScheduleForm: React.FC<ScheduleFormProps> = ({
           </Grid>
 
           {/* Start Date & Time */}
-<<<<<<< HEAD
-          <Grid size={{xs: 12, md: 6}}>
-            <Controller
-              name="start_datetime"
-              control={control}
-              render={({ field }) => (
-                <DateTimePicker
-                  label="Start Date & Time"
-                  value={field.value}
-                  onChange={(date) => {
-=======
           <Grid item xs={12} md={6}>
             <Controller
               name="start_datetime"
               control={control}
-              // @ts-ignore
+              // @ts-expect-error
               render={({ field }) => (
                 <TextField
                   {...field}
@@ -339,7 +288,6 @@ export const ScheduleForm: React.FC<ScheduleFormProps> = ({
                   value={field.value ? format(field.value, "yyyy-MM-dd'T'HH:mm") : ''}
                   onChange={(e) => {
                     const date = e.target.value ? new Date(e.target.value) : null
->>>>>>> 9ebe312 (fix: Critical frontend build errors resolved)
                     field.onChange(date)
                     // Auto-adjust end time to maintain duration
                     if (date && endDateTime) {
@@ -350,49 +298,18 @@ export const ScheduleForm: React.FC<ScheduleFormProps> = ({
                       }
                     }
                   }}
-<<<<<<< HEAD
-                  slotProps={{
-                    textField: {
-                      fullWidth: true,
-                      required: true,
-                      error: !!errors.start_datetime,
-                      helperText: errors.start_datetime?.message,
-                    },
-                  }}
-=======
                   InputLabelProps={{ shrink: true }}
->>>>>>> 9ebe312 (fix: Critical frontend build errors resolved)
                 />
               )}
             />
           </Grid>
 
           {/* End Date & Time */}
-<<<<<<< HEAD
-          <Grid size={{xs: 12, md: 6}}>
-            <Controller
-              name="end_datetime"
-              control={control}
-              render={({ field }) => (
-                <DateTimePicker
-                  label="End Date & Time"
-                  value={field.value}
-                  onChange={field.onChange}
-                  minDateTime={startDateTime}
-                  slotProps={{
-                    textField: {
-                      fullWidth: true,
-                      required: true,
-                      error: !!errors.end_datetime,
-                      helperText: errors.end_datetime?.message,
-                    },
-                  }}
-=======
           <Grid item xs={12} md={6}>
             <Controller
               name="end_datetime"
               control={control}
-              // @ts-ignore
+              // @ts-expect-error
               render={({ field }) => (
                 <TextField
                   {...field}
@@ -411,25 +328,17 @@ export const ScheduleForm: React.FC<ScheduleFormProps> = ({
                     min: startDateTime ? format(startDateTime, "yyyy-MM-dd'T'HH:mm") : undefined
                   }}
                   InputLabelProps={{ shrink: true }}
->>>>>>> 9ebe312 (fix: Critical frontend build errors resolved)
                 />
               )}
             />
           </Grid>
 
           {/* Operator Selection */}
-<<<<<<< HEAD
-          <Grid size={{xs: 12, md: 6}}>
-            <Controller
-              name="operator_id"
-              control={control}
-=======
           <Grid item xs={12} md={6}>
             <Controller
               name="operator_id"
               control={control}
-              // @ts-ignore
->>>>>>> 9ebe312 (fix: Critical frontend build errors resolved)
+              // @ts-expect-error
               render={({ field }) => (
                 <FormControl fullWidth>
                   <InputLabel>Operator (Optional)</InputLabel>
@@ -449,11 +358,7 @@ export const ScheduleForm: React.FC<ScheduleFormProps> = ({
           </Grid>
 
           {/* Duration Display */}
-<<<<<<< HEAD
-          <Grid size={{xs: 12, md: 6}}>
-=======
           <Grid item xs={12} md={6}>
->>>>>>> 9ebe312 (fix: Critical frontend build errors resolved)
             <Paper sx={{ p: 2, backgroundColor: 'grey.50' }}>
               <Typography variant="subtitle2" gutterBottom>
                 Schedule Duration
@@ -467,18 +372,11 @@ export const ScheduleForm: React.FC<ScheduleFormProps> = ({
           </Grid>
 
           {/* Notes */}
-<<<<<<< HEAD
-          <Grid size={{xs: 12}}>
-            <Controller
-              name="notes"
-              control={control}
-=======
           <Grid item xs={12}>
             <Controller
               name="notes"
               control={control}
-              // @ts-ignore
->>>>>>> 9ebe312 (fix: Critical frontend build errors resolved)
+              // @ts-expect-error
               render={({ field }) => (
                 <TextField
                   {...field}
@@ -493,11 +391,7 @@ export const ScheduleForm: React.FC<ScheduleFormProps> = ({
           </Grid>
 
           {/* Actions */}
-<<<<<<< HEAD
-          <Grid size={{xs: 12}}>
-=======
           <Grid item xs={12}>
->>>>>>> 9ebe312 (fix: Critical frontend build errors resolved)
             <Box display="flex" gap={2} justifyContent="flex-end" sx={{ mt: 3 }}>
               <Button
                 type="button"
@@ -521,11 +415,5 @@ export const ScheduleForm: React.FC<ScheduleFormProps> = ({
           </Grid>
         </Grid>
       </Box>
-<<<<<<< HEAD
-    </LocalizationProvider>
-  )
-}
-=======
     )
   }
->>>>>>> 9ebe312 (fix: Critical frontend build errors resolved)
