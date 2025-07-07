@@ -1,7 +1,7 @@
 import useSWR from 'swr'
 import useSWRMutation from 'swr/mutation'
 import { useAuthStore } from '@/stores/auth'
-import { authAPI, handleAPIError, LoginRequest, RegisterRequest } from '@/lib/api'
+import { authAPI, handleAPIError, LoginRequest, RegisterRequest } from '../lib/api'
 import { useRouter } from 'next/navigation'
 import { useEffect } from 'react'
 

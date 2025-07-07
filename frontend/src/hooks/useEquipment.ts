@@ -1,7 +1,7 @@
 import React from 'react'
 import useSWR, { mutate } from 'swr'
 import useSWRMutation from 'swr/mutation'
-import { swrFetcher, mutationFetcher } from '@/lib/swr-fetcher'
+import { swrFetcher, mutationFetcher } from '../lib/swr-fetcher'
 import type {
   Equipment,
   EquipmentCreateRequest,
