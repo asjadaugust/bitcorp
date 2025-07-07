@@ -190,13 +190,13 @@ export const EquipmentForm: React.FC<EquipmentFormProps> = ({
 
       <Grid container spacing={3}>
         {/* Basic Information */}
-        <Grid size={{xs: 12}}>
+        <Grid item xs={12}>
           <Typography variant="h6" gutterBottom>
             Basic Information
           </Typography>
         </Grid>
 
-        <Grid size={{xs: 12, md: 6}}>
+        <Grid item xs={12} md={6}>
           <Controller
             name="name"
             control={control}
@@ -214,7 +214,7 @@ export const EquipmentForm: React.FC<EquipmentFormProps> = ({
           />
         </Grid>
 
-        <Grid size={{xs: 12, md: 6}}>
+        <Grid item xs={12} md={6}>
           <Controller
             name="equipment_type"
             control={control}
@@ -237,7 +237,7 @@ export const EquipmentForm: React.FC<EquipmentFormProps> = ({
           />
         </Grid>
 
-        <Grid size={{xs: 12, md: 6}}>
+        <Grid item xs={12} md={6}>
           <Controller
             name="brand"
             control={control}
@@ -252,7 +252,7 @@ export const EquipmentForm: React.FC<EquipmentFormProps> = ({
           />
         </Grid>
 
-        <Grid size={{xs: 12, md: 6}}>
+        <Grid item xs={12} md={6}>
           <Controller
             name="model"
             control={control}
@@ -267,7 +267,7 @@ export const EquipmentForm: React.FC<EquipmentFormProps> = ({
           />
         </Grid>
 
-        <Grid size={{xs: 12, md: 6}}>
+        <Grid item xs={12} md={6}>
           <Controller
             name="serial_number"
             control={control}
@@ -281,7 +281,7 @@ export const EquipmentForm: React.FC<EquipmentFormProps> = ({
           />
         </Grid>
 
-        <Grid size={{xs: 12, md: 6}}>
+        <Grid item xs={12} md={6}>
           <Controller
             name="year_manufactured"
             control={control}
@@ -301,13 +301,13 @@ export const EquipmentForm: React.FC<EquipmentFormProps> = ({
         </Grid>
 
         {/* Financial Information */}
-        <Grid size={{xs: 12}}>
+        <Grid item xs={12}>
           <Typography variant="h6" gutterBottom sx={{ mt: 2 }}>
             Financial Information
           </Typography>
         </Grid>
 
-        <Grid size={{xs: 12, md: 4}}>
+        <Grid item xs={12} md={4}>
           <Controller
             name="purchase_cost"
             control={control}
@@ -326,7 +326,7 @@ export const EquipmentForm: React.FC<EquipmentFormProps> = ({
           />
         </Grid>
 
-        <Grid size={{xs: 12, md: 4}}>
+        <Grid item xs={12} md={4}>
           <Controller
             name="current_value"
             control={control}
@@ -345,7 +345,7 @@ export const EquipmentForm: React.FC<EquipmentFormProps> = ({
           />
         </Grid>
 
-        <Grid size={{xs: 12, md: 4}}>
+        <Grid item xs={12} md={4}>
           <Controller
             name="hourly_rate"
             control={control}
@@ -366,13 +366,13 @@ export const EquipmentForm: React.FC<EquipmentFormProps> = ({
         </Grid>
 
         {/* Technical Specifications */}
-        <Grid size={{xs: 12}} >
+        <Grid item xs={12} >
           <Typography variant="h6" gutterBottom sx={{ mt: 2 }}>
             Technical Specifications
           </Typography>
         </Grid>
 
-        <Grid size={{xs: 12, md: 6}}>
+        <Grid item xs={12} md={6}>
           <Controller
             name="fuel_type"
             control={control}
@@ -397,7 +397,7 @@ export const EquipmentForm: React.FC<EquipmentFormProps> = ({
           />
         </Grid>
 
-        <Grid size={{xs: 12, md: 6}}>
+        <Grid item xs={12} md={6}>
           <Controller
             name="fuel_capacity"
             control={control}
@@ -417,7 +417,7 @@ export const EquipmentForm: React.FC<EquipmentFormProps> = ({
         </Grid>
 
         {isEditing && (
-          <Grid size={{xs: 12, md: 6}}>
+          <Grid item xs={12} md={6}>
             <Controller
               name="status"
               control={control}
@@ -441,13 +441,13 @@ export const EquipmentForm: React.FC<EquipmentFormProps> = ({
         )}
 
         {/* Notes */}
-        <Grid size={{xs: 12}}>
+        <Grid item xs={12}>
           <Typography variant="h6" gutterBottom sx={{ mt: 2 }}>
             Additional Notes
           </Typography>
         </Grid>
 
-        <Grid size={{xs: 12}}>
+        <Grid item xs={12}>
           <Controller
             name="notes"
             control={control}
@@ -464,7 +464,7 @@ export const EquipmentForm: React.FC<EquipmentFormProps> = ({
         </Grid>
 
         {/* Actions */}
-        <Grid size={{xs: 12}}>
+        <Grid item xs={12}>
           <Box display="flex" gap={2} justifyContent="flex-end" sx={{ mt: 3 }}>
             <Button
               type="button"

@@ -32,7 +32,8 @@ help:
 	@echo "  make clean            - Clean build artifacts"
 	@echo ""
 	@echo "$(GREEN)Debugging:$(NC)"
-	@echo "  make logs             - Show recent logs and system status"
+	@echo "  make logs             - Show recent build logs"
+	@echo "  make clear-logs       - Clear all build logs"
 
 # Check if required dependencies are installed
 check-deps:
@@ -59,57 +60,66 @@ build: build-backend build-frontend
 # Build frontend with error handling
 build-frontend:
 	@echo "$(BLUE)Building frontend...$(NC)"
+	@rm -f build-frontend.log
 	@echo "$(YELLOW)Running TypeScript type check...$(NC)"
 	@cd frontend && npm run type-check 2>&1 | tee ../build-frontend.log || { \
 		echo "$(RED)❌ Frontend TypeScript errors found:$(NC)"; \
 		echo "$(RED)=====================================$(NC)"; \
-		cat ../build-frontend.log | grep -E "(error|Error|ERROR)" || cat ../build-frontend.log; \
+		echo "$(RED)See build-frontend.log for details:$(NC)"; \
+		tail -20 ../build-frontend.log; \
 		echo "$(RED)=====================================$(NC)"; \
-		echo "$(RED)Please fix the above TypeScript errors and try again.$(NC)"; \
+		echo "$(RED)Full log available in: build-frontend.log$(NC)"; \
 		exit 1; \
 	}
 	@echo "$(YELLOW)Building frontend for production...$(NC)"
 	@cd frontend && npm run build 2>&1 | tee -a ../build-frontend.log || { \
 		echo "$(RED)❌ Frontend build failed:$(NC)"; \
 		echo "$(RED)========================$(NC)"; \
-		cat ../build-frontend.log | tail -50; \
+		echo "$(RED)See build-frontend.log for details:$(NC)"; \
+		tail -30 ../build-frontend.log; \
 		echo "$(RED)========================$(NC)"; \
-		echo "$(RED)Please fix the above build errors and try again.$(NC)"; \
+		echo "$(RED)Full log available in: build-frontend.log$(NC)"; \
 		exit 1; \
 	}
 	@echo "$(GREEN)✓ Frontend built successfully$(NC)"
+	@echo "$(GREEN)✓ Build log saved to: build-frontend.log$(NC)"
 
 # Build backend with error handling (mainly type checking and validation)
 build-backend:
 	@echo "$(BLUE)Building backend...$(NC)"
+	@rm -f build-backend.log
 	@echo "$(YELLOW)Checking Python syntax and imports...$(NC)"
 	@cd backend && python -m py_compile app/main.py 2>&1 | tee ../build-backend.log || { \
 		echo "$(RED)❌ Backend Python syntax errors found:$(NC)"; \
 		echo "$(RED)====================================$(NC)"; \
+		echo "$(RED)See build-backend.log for details:$(NC)"; \
 		cat ../build-backend.log; \
 		echo "$(RED)====================================$(NC)"; \
-		echo "$(RED)Please fix the above Python errors and try again.$(NC)"; \
+		echo "$(RED)Full log available in: build-backend.log$(NC)"; \
 		exit 1; \
 	}
 	@echo "$(YELLOW)Testing FastAPI app import...$(NC)"
 	@cd backend && python -c "from app.main import app; print('✓ FastAPI app imports successfully')" 2>&1 | tee -a ../build-backend.log || { \
 		echo "$(RED)❌ Backend import errors found:$(NC)"; \
 		echo "$(RED)==============================$(NC)"; \
-		cat ../build-backend.log | tail -20; \
+		echo "$(RED)See build-backend.log for details:$(NC)"; \
+		tail -20 ../build-backend.log; \
 		echo "$(RED)==============================$(NC)"; \
-		echo "$(RED)Please fix the above import errors and try again.$(NC)"; \
+		echo "$(RED)Full log available in: build-backend.log$(NC)"; \
 		exit 1; \
 	}
 	@echo "$(YELLOW)Checking database models...$(NC)"
 	@cd backend && python -c "from app.models import Equipment, User, Company; print('✓ Database models import successfully')" 2>&1 | tee -a ../build-backend.log || { \
 		echo "$(RED)❌ Backend model errors found:$(NC)"; \
 		echo "$(RED)=============================$(NC)"; \
-		cat ../build-backend.log | tail -20; \
+		echo "$(RED)See build-backend.log for details:$(NC)"; \
+		tail -20 ../build-backend.log; \
 		echo "$(RED)=============================$(NC)"; \
-		echo "$(RED)Please fix the above model errors and try again.$(NC)"; \
+		echo "$(RED)Full log available in: build-backend.log$(NC)"; \
 		exit 1; \
 	}
 	@echo "$(GREEN)✓ Backend validation passed$(NC)"
+	@echo "$(GREEN)✓ Build log saved to: build-backend.log$(NC)"
 
 # Run tests
 test:
@@ -144,6 +154,34 @@ clean:
 	rm -f dev-backend.log
 	@echo "$(GREEN)✓ Build artifacts cleaned$(NC)"
 
+# View build logs
+logs:
+	@echo "$(BLUE)Recent build logs:$(NC)"
+	@echo ""
+	@if [ -f build-frontend.log ]; then \
+		echo "$(YELLOW)Frontend build log (last 20 lines):$(NC)"; \
+		echo "$(YELLOW)====================================$(NC)"; \
+		tail -20 build-frontend.log; \
+		echo ""; \
+	else \
+		echo "$(YELLOW)No frontend build log found$(NC)"; \
+	fi
+	@if [ -f build-backend.log ]; then \
+		echo "$(YELLOW)Backend build log (last 20 lines):$(NC)"; \
+		echo "$(YELLOW)===================================$(NC)"; \
+		tail -20 build-backend.log; \
+		echo ""; \
+	else \
+		echo "$(YELLOW)No backend build log found$(NC)"; \
+	fi
+	@echo "$(BLUE)Full logs available in: build-frontend.log, build-backend.log$(NC)"
+
+# Clear build logs
+clear-logs:
+	@echo "$(BLUE)Clearing build logs...$(NC)"
+	rm -f build-frontend.log build-backend.log dev-frontend.log dev-backend.log
+	@echo "$(GREEN)✓ Build logs cleared$(NC)"
+
 # Development servers
 dev-frontend:
 	@echo "$(BLUE)Starting frontend development server...$(NC)"
@@ -165,28 +203,6 @@ dev:
 		if [ -f ../backend.pid ]; then kill `cat ../backend.pid`; rm ../backend.pid; fi; \
 		exit 1; \
 	}
-
-# Show logs and system status
-logs:
-	@echo "$(BLUE)System Status and Recent Logs$(NC)"
-	@echo "$(YELLOW)================================$(NC)"
-	@echo "$(GREEN)Backend Status:$(NC)"
-	@if [ -f backend.pid ]; then \
-		echo "Backend PID: `cat backend.pid`"; \
-		ps -p `cat backend.pid` > /dev/null && echo "Status: Running" || echo "Status: Not running"; \
-	else \
-		echo "Status: Not running"; \
-	fi
-	@echo ""
-	@echo "$(GREEN)Recent Backend Logs:$(NC)"
-	@if [ -f dev-backend.log ]; then tail -20 dev-backend.log; else echo "No backend logs found"; fi
-	@echo ""
-	@echo "$(GREEN)Recent Frontend Logs:$(NC)"
-	@if [ -f dev-frontend.log ]; then tail -20 dev-frontend.log; else echo "No frontend logs found"; fi
-	@echo ""
-	@echo "$(GREEN)Build Logs:$(NC)"
-	@if [ -f build-frontend.log ]; then echo "Frontend build log available: build-frontend.log"; fi
-	@if [ -f build-backend.log ]; then echo "Backend build log available: build-backend.log"; fi
 
 # Stop background processes
 stop:
