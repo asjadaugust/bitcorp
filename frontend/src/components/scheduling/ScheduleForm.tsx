@@ -11,12 +11,12 @@ import {
   InputLabel,
   Select,
   MenuItem,
-  Grid,
   Alert,
   CircularProgress,
   Paper,
   Chip,
 } from '@mui/material'
+import Grid from '@mui/material/Grid2'
 import {
   Save as SaveIcon,
   Cancel as CancelIcon,
@@ -217,11 +217,10 @@ export const ScheduleForm: React.FC<ScheduleFormProps> = ({
 
         <Grid container spacing={3}>
           {/* Equipment Selection */}
-          <Grid item xs={12} md={6}>
+          <Grid size={{ xs: 12, md: 6 }}>
             <Controller
               name="equipment_id"
               control={control}
-              // @ts-expect-error
               render={({ field }) => (
                 <FormControl fullWidth required error={!!errors.equipment_id}>
                   <InputLabel>Equipment</InputLabel>
@@ -247,11 +246,10 @@ export const ScheduleForm: React.FC<ScheduleFormProps> = ({
           </Grid>
 
           {/* Project Selection */}
-          <Grid item xs={12} md={6}>
+          <Grid size={{ xs: 12, md: 6 }}>
             <Controller
               name="project_id"
               control={control}
-              // @ts-expect-error
               render={({ field }) => (
                 <FormControl fullWidth>
                   <InputLabel>Project (Optional)</InputLabel>
@@ -271,11 +269,10 @@ export const ScheduleForm: React.FC<ScheduleFormProps> = ({
           </Grid>
 
           {/* Start Date & Time */}
-          <Grid item xs={12} md={6}>
+          <Grid size={{ xs: 12, md: 6 }}>
             <Controller
               name="start_datetime"
               control={control}
-              // @ts-expect-error
               render={({ field }) => (
                 <TextField
                   {...field}
@@ -305,11 +302,10 @@ export const ScheduleForm: React.FC<ScheduleFormProps> = ({
           </Grid>
 
           {/* End Date & Time */}
-          <Grid item xs={12} md={6}>
+          <Grid size={{ xs: 12, md: 6 }}>
             <Controller
               name="end_datetime"
               control={control}
-              // @ts-expect-error
               render={({ field }) => (
                 <TextField
                   {...field}
@@ -334,11 +330,10 @@ export const ScheduleForm: React.FC<ScheduleFormProps> = ({
           </Grid>
 
           {/* Operator Selection */}
-          <Grid item xs={12} md={6}>
+          <Grid size={{ xs: 12, md: 6 }}>
             <Controller
               name="operator_id"
               control={control}
-              // @ts-expect-error
               render={({ field }) => (
                 <FormControl fullWidth>
                   <InputLabel>Operator (Optional)</InputLabel>
@@ -358,7 +353,7 @@ export const ScheduleForm: React.FC<ScheduleFormProps> = ({
           </Grid>
 
           {/* Duration Display */}
-          <Grid item xs={12} md={6}>
+          <Grid size={{ xs: 12, md: 6 }}>
             <Paper sx={{ p: 2, backgroundColor: 'grey.50' }}>
               <Typography variant="subtitle2" gutterBottom>
                 Schedule Duration
@@ -372,11 +367,10 @@ export const ScheduleForm: React.FC<ScheduleFormProps> = ({
           </Grid>
 
           {/* Notes */}
-          <Grid item xs={12}>
+          <Grid size={{ xs: 12 }}>
             <Controller
               name="notes"
               control={control}
-              // @ts-expect-error
               render={({ field }) => (
                 <TextField
                   {...field}
@@ -391,7 +385,7 @@ export const ScheduleForm: React.FC<ScheduleFormProps> = ({
           </Grid>
 
           {/* Actions */}
-          <Grid item xs={12}>
+          <Grid size={{ xs: 12 }}>
             <Box display="flex" gap={2} justifyContent="flex-end" sx={{ mt: 3 }}>
               <Button
                 type="button"
