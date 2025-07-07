@@ -72,27 +72,19 @@ jobs:
       with:
         node-version: '18'
         cache: 'npm'
-        cache-dependency-path: frontend/package-lock.json
+        cache-dependency-path: 'package-lock.json'
 
     - name: Install frontend dependencies
-      run: |
-        cd frontend
-        npm ci
+      run: npm ci --workspace=frontend
 
     - name: Lint frontend code
-      run: |
-        cd frontend
-        npm run lint
+      run: npm run lint --workspace=frontend
 
     - name: Type check frontend
-      run: |
-        cd frontend
-        npm run type-check
+      run: npm run type-check --workspace=frontend
 
     - name: Build frontend
-      run: |
-        cd frontend
-        npm run build
+      run: npm run build --workspace=frontend
 
   integration:
     runs-on: ubuntu-latest
@@ -126,12 +118,12 @@ jobs:
       with:
         node-version: '18'
         cache: 'npm'
-        cache-dependency-path: frontend/package-lock.json
+        cache-dependency-path: 'package-lock.json'
 
     - name: Install dependencies
       run: |
         cd backend && pip install -r requirements.txt
-        cd ../frontend && npm ci
+        npm ci --workspace=frontend
 
     - name: Run integration build test
       env:
