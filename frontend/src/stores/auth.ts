@@ -50,6 +50,7 @@ interface AuthActions {
   setError: (error: string | null) => void
   hasRole: (roleName: string) => boolean
   hasPermission: (permissionName: string) => boolean
+  initialize: () => void
 }
 
 export const useAuthStore = create<AuthState & AuthActions>()(
@@ -71,21 +72,36 @@ export const useAuthStore = create<AuthState & AuthActions>()(
           error: null 
         }),
 
-      setTokens: (accessToken, refreshToken) =>
+      setTokens: (accessToken, refreshToken) => {
+        // Set in store state
         set({ 
           accessToken, 
           refreshToken, 
           isAuthenticated: true 
-        }),
+        })
+        
+        // Also set in localStorage for API functions
+        if (typeof window !== 'undefined') {
+          localStorage.setItem('accessToken', accessToken)
+          localStorage.setItem('refreshToken', refreshToken)
+        }
+      },
 
-      logout: () =>
+      logout: () => {
         set({
           user: null,
           accessToken: null,
           refreshToken: null,
           isAuthenticated: false,
           error: null,
-        }),
+        })
+        
+        // Clear from localStorage too
+        if (typeof window !== 'undefined') {
+          localStorage.removeItem('accessToken')
+          localStorage.removeItem('refreshToken')
+        }
+      },
 
       setLoading: (isLoading) => 
         set({ isLoading }),
@@ -105,6 +121,15 @@ export const useAuthStore = create<AuthState & AuthActions>()(
         return user.roles.some(role =>
           role.permissions?.some(permission => permission.name === permissionName)
         )
+      },
+
+      initialize: () => {
+        // Sync tokens from store to localStorage on initialization
+        const { accessToken, refreshToken } = get()
+        if (accessToken && refreshToken && typeof window !== 'undefined') {
+          localStorage.setItem('accessToken', accessToken)
+          localStorage.setItem('refreshToken', refreshToken)
+        }
       },
     }),
     {

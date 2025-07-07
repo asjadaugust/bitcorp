@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react'
+import React, { useState, useCallback } from 'react'
 import {
   Box,
   Card,
@@ -37,9 +37,13 @@ import {
   FilterList as FilterIcon,
   Clear as ClearIcon
 } from '@mui/icons-material'
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { useDebounce } from '../../hooks/useDebounce'
-import { equipmentService } from '../../services/equipmentService'
+import { 
+  useEquipmentList,
+  useEquipmentTypes,
+  useEquipmentStatuses,
+  useDeleteEquipment
+} from '../../hooks/useEquipment'
 import type { 
   Equipment, 
   EquipmentSearchParams
@@ -71,8 +75,6 @@ export const EquipmentList: React.FC<EquipmentListProps> = ({
   onEditEquipment,
   compact = false
 }) => {
-  const queryClient = useQueryClient()
-  
   // State
   const [searchQuery, setSearchQuery] = useState('')
   const [page, setPage] = useState(1)
@@ -97,35 +99,19 @@ export const EquipmentList: React.FC<EquipmentListProps> = ({
     )
   }
   
-  // Queries
+  // SWR Hooks
   const { 
-    data: equipmentData, 
+    equipment: equipmentList, 
+    total_pages: totalPages,
     isLoading, 
     error
-  } = useQuery({
-    queryKey: ['equipment', searchParams],
-    queryFn: () => equipmentService.getEquipment(searchParams)
-  })
+  } = useEquipmentList(searchParams)
   
-  const { data: equipmentTypes } = useQuery({
-    queryKey: ['equipment-types'],
-    queryFn: () => equipmentService.getEquipmentTypes()
-  })
-  
-  const { data: equipmentStatuses } = useQuery({
-    queryKey: ['equipment-statuses'],
-    queryFn: () => equipmentService.getEquipmentStatuses()
-  })
+  const { data: equipmentTypes } = useEquipmentTypes()
+  const { data: equipmentStatuses } = useEquipmentStatuses()
   
   // Mutations
-  const deleteEquipmentMutation = useMutation({
-    mutationFn: (id: number) => equipmentService.deleteEquipment(id),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['equipment'] })
-      setDeleteDialogOpen(false)
-      setSelectedEquipment(null)
-    }
-  })
+  const { deleteEquipment, isDeleting } = useDeleteEquipment()
   
   // Handlers
   const handleSearchChange = useCallback((event: React.ChangeEvent<HTMLInputElement>) => {
@@ -177,22 +163,23 @@ export const EquipmentList: React.FC<EquipmentListProps> = ({
     handleMenuClose()
   }, [handleMenuClose])
   
-  const handleDeleteConfirm = useCallback(() => {
+  const handleDeleteConfirm = useCallback(async () => {
     if (selectedEquipment) {
-      deleteEquipmentMutation.mutate(selectedEquipment.id)
+      try {
+        await deleteEquipment(selectedEquipment.id)
+        setDeleteDialogOpen(false)
+        setSelectedEquipment(null)
+      } catch (error) {
+        console.error('Failed to delete equipment:', error)
+      }
     }
-  }, [selectedEquipment, deleteEquipmentMutation])
+  }, [selectedEquipment, deleteEquipment])
   
   const handleEquipmentClick = useCallback((equipment: Equipment) => {
     if (onSelectEquipment) {
       onSelectEquipment(equipment)
     }
   }, [onSelectEquipment])
-  
-  // Effects
-  useEffect(() => {
-    setPage(1)
-  }, [debouncedSearch, filters])
   
   if (error) {
     return (
@@ -337,7 +324,7 @@ export const EquipmentList: React.FC<EquipmentListProps> = ({
           }}
           gap={2}
         >
-          {equipmentData?.equipment.map((equipment: Equipment) => (
+          {equipmentList.map((equipment: Equipment) => (
             <Card
               key={equipment.id}
               sx={{
@@ -403,10 +390,10 @@ export const EquipmentList: React.FC<EquipmentListProps> = ({
       )}
       
       {/* Pagination */}
-      {equipmentData && equipmentData.total_pages > 1 && (
+      {totalPages > 1 && (
         <Box display="flex" justifyContent="center" mt={3}>
           <Pagination
-            count={equipmentData.total_pages}
+            count={totalPages}
             page={page}
             onChange={handlePageChange}
             color="primary"
@@ -472,9 +459,9 @@ export const EquipmentList: React.FC<EquipmentListProps> = ({
             onClick={handleDeleteConfirm}
             color="error"
             variant="contained"
-            disabled={deleteEquipmentMutation.isPending}
+            disabled={isDeleting}
           >
-            {deleteEquipmentMutation.isPending ? 'Deleting...' : 'Delete'}
+            {isDeleting ? 'Deleting...' : 'Delete'}
           </Button>
         </DialogActions>
       </Dialog>

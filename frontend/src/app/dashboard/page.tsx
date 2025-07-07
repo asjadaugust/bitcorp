@@ -206,7 +206,7 @@ export default function DashboardPage() {
               <Avatar sx={{ bgcolor: 'primary.main' }}>
                 <User />
               </Avatar>
-              <IconButton onClick={logout} color="error" title="Logout">
+              <IconButton onClick={() => logout()} color="error" title="Logout">
                 <LogOut />
               </IconButton>
             </Box>
