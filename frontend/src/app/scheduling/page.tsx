@@ -6,19 +6,9 @@ import {
   Container,
   Typography,
   Button,
-<<<<<<< HEAD
-  Grid,
-  Card,
-  CardContent,
   Tab,
   Tabs,
   Paper,
-  Chip,
-=======
-  Tab,
-  Tabs,
-  Paper,
->>>>>>> 9ebe312 (fix: Critical frontend build errors resolved)
   IconButton,
   Dialog,
   DialogTitle,
@@ -31,11 +21,6 @@ import {
   Add as AddIcon,
   CalendarMonth as CalendarIcon,
   List as ListIcon,
-<<<<<<< HEAD
-  Edit as EditIcon,
-  Delete as DeleteIcon,
-=======
->>>>>>> 9ebe312 (fix: Critical frontend build errors resolved)
   Timeline as TimelineIcon,
   ArrowBack as ArrowBackIcon,
   Home as HomeIcon,
@@ -102,17 +87,10 @@ export default function SchedulingPage() {
     setIsFormOpen(true)
   }
 
-<<<<<<< HEAD
-  const handleDeleteSchedule = (schedule: EquipmentSchedule) => {
-    setScheduleToDelete(schedule)
-    setIsDeleteDialogOpen(true)
-  }
-=======
   // const handleDeleteSchedule = (schedule: EquipmentSchedule) => {
   //   setScheduleToDelete(schedule)
   //   setIsDeleteDialogOpen(true)
   // }
->>>>>>> 9ebe312 (fix: Critical frontend build errors resolved)
 
   const confirmDelete = async () => {
     if (scheduleToDelete) {
@@ -127,11 +105,7 @@ export default function SchedulingPage() {
     }
   }
 
-<<<<<<< HEAD
-  const handleFormSave = (schedule: EquipmentSchedule) => {
-=======
-  const handleFormSave = (_schedule: EquipmentSchedule) => {
->>>>>>> 9ebe312 (fix: Critical frontend build errors resolved)
+  const handleFormSave = () => {
     setIsFormOpen(false)
     setSelectedSchedule(null)
     mutate() // Refresh the list
@@ -142,22 +116,6 @@ export default function SchedulingPage() {
     setSelectedSchedule(null)
   }
 
-<<<<<<< HEAD
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case 'scheduled':
-        return 'primary'
-      case 'active':
-        return 'success'
-      case 'completed':
-        return 'default'
-      case 'cancelled':
-        return 'error'
-      default:
-        return 'default'
-    }
-  }
-=======
   // const getStatusColor = (status: string) => {
   //   switch (status) {
   //     case 'scheduled':
@@ -172,7 +130,6 @@ export default function SchedulingPage() {
   //       return 'default'
   //   }
   // }
->>>>>>> 9ebe312 (fix: Critical frontend build errors resolved)
 
   const formatDateTime = (dateString: string) => {
     return format(new Date(dateString), 'MMM dd, yyyy HH:mm')
@@ -183,15 +140,9 @@ export default function SchedulingPage() {
   // Filter schedules based on selected projects and operators
   const filteredSchedules = schedules.filter(schedule => {
     const projectMatch = selectedProjects.length === 0 || 
-<<<<<<< HEAD
-      (schedule.project_name && selectedProjects.includes(schedule.project_name))
-    const operatorMatch = selectedOperators.length === 0 || 
-      (schedule.operator_name && selectedOperators.includes(schedule.operator_name))
-=======
       (schedule.project?.name && selectedProjects.includes(schedule.project.name))
     const operatorMatch = selectedOperators.length === 0 || 
       (schedule.operator?.full_name && selectedOperators.includes(schedule.operator.full_name))
->>>>>>> 9ebe312 (fix: Critical frontend build errors resolved)
     return projectMatch && operatorMatch
   })
 
