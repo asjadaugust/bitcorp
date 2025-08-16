@@ -1,23 +1,23 @@
-'use client'
+'use client';
 
-import { useAuth } from '@/hooks/useAuth'
-import { useRouter } from 'next/navigation'
-import { useEffect } from 'react'
-import { Box, CircularProgress, Typography } from '@mui/material'
+import { useAuth } from '@/hooks/useAuth';
+import { useRouter } from 'next/navigation';
+import { useEffect } from 'react';
+import { Box, CircularProgress, Typography } from '@mui/material';
 
 export default function HomePage() {
-  const { isAuthenticated, isLoading } = useAuth()
-  const router = useRouter()
+  const { isAuthenticated, isLoading } = useAuth();
+  const router = useRouter();
 
   useEffect(() => {
     if (!isLoading) {
       if (isAuthenticated) {
-        router.push('/dashboard')
+        router.push('/dashboard');
       } else {
-        router.push('/login')
+        router.push('/login');
       }
     }
-  }, [isAuthenticated, isLoading, router])
+  }, [isAuthenticated, isLoading, router]);
 
   return (
     <Box
@@ -34,5 +34,5 @@ export default function HomePage() {
         <Typography color="text.secondary">Loading...</Typography>
       </Box>
     </Box>
-  )
+  );
 }

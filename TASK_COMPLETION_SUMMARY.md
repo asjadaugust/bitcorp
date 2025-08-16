@@ -100,4 +100,3 @@ frontend/
 
 ## 🎉 All Task Requirements Fulfilled!
 
-The frontend has been successfully refactored to use SWR instead of axios for equipment API calls, endpoint issues have been resolved, comprehensive testing has been added, and all changes have been committed and pushed to the repository.

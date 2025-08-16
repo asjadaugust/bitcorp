@@ -9,7 +9,7 @@ services:
       POSTGRES_PASSWORD: password
     volumes:
       - postgres_data:/var/lib/postgresql/data
-      - ./database/init:/docker-entrypoint-initdb.d
+      - ./kubernetes/init-scripts:/docker-entrypoint-initdb.d
     ports:
       - '5433:5432'
     networks:
@@ -34,7 +34,7 @@ services:
       timeout: 5s
       retries: 5
 
-  # FastAPI Backend
+  # FastAPI Backend (ERP Main Application)
   backend:
     build:
       context: ./backend
@@ -48,6 +48,10 @@ services:
       - ACCESS_TOKEN_EXPIRE_MINUTES=30
       - REFRESH_TOKEN_EXPIRE_DAYS=7
       - ENVIRONMENT=development
+      - CORS_ALLOW_ORIGINS=["http://localhost:3000","http://127.0.0.1:3000"]
+      - CORS_ALLOW_METHODS=["GET","POST","PUT","DELETE","OPTIONS"]
+      - CORS_ALLOW_HEADERS=["*"]
+      - CORS_ALLOW_CREDENTIALS=true
     ports:
       - '8000:8000'
     volumes:
@@ -67,7 +71,7 @@ services:
       timeout: 10s
       retries: 3
 
-  # Next.js Frontend
+  # Next.js Frontend (ERP Main Application)
   frontend:
     build:
       context: ./frontend

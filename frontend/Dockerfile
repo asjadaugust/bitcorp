@@ -5,8 +5,8 @@ FROM node:18-alpine
 WORKDIR /app
 
 # Install dependencies based on the preferred package manager
-COPY package.json package-lock.json* ./
-RUN npm ci --only=production && npm cache clean --force
+COPY package.json ./
+RUN npm install && npm cache clean --force
 
 # Copy source code
 COPY . .
