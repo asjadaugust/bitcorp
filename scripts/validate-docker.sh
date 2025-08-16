@@ -31,7 +31,7 @@ fi
 
 # Test PostgreSQL connection
 echo "🗄️  Testing PostgreSQL connection..."
-if docker-compose exec -T postgres pg_isready -U bitcorp > /dev/null; then
+if docker-compose exec -T db pg_isready -U bitcorp > /dev/null; then
     echo "✅ PostgreSQL is ready"
 else
     echo "❌ PostgreSQL is not ready"
