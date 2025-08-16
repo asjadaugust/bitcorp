@@ -1,6 +1,6 @@
 from sqlalchemy.orm import Session
-from sqlalchemy import or_
-from typing import Optional
+from sqlalchemy import or_, func
+from typing import Optional, Tuple, List
 from datetime import datetime
 from app.models.user import User, Role, Permission
 from app.api.v1.auth.schemas import UserCreate, UserUpdate
@@ -108,6 +108,63 @@ class UserService:
             user.roles.remove(role)
             db.commit()
         
+        return True
+
+    @staticmethod
+    def get_users_paginated(
+        db: Session, 
+        skip: int = 0, 
+        limit: int = 50, 
+        search: Optional[str] = None,
+        role_filter: Optional[str] = None,
+        is_active: Optional[bool] = None
+    ) -> Tuple[List[User], int]:
+        """Get paginated list of users with filtering"""
+        query = db.query(User)
+        
+        # Apply filters
+        if search:
+            query = query.filter(or_(
+                User.first_name.ilike(f"%{search}%"),
+                User.last_name.ilike(f"%{search}%"),
+                User.username.ilike(f"%{search}%"),
+                User.email.ilike(f"%{search}%")
+            ))
+        
+        if is_active is not None:
+            query = query.filter(User.is_active == is_active)
+        
+        if role_filter:
+            query = query.join(User.roles).filter(Role.name == role_filter)
+        
+        # Get total count
+        total = query.count()
+        
+        # Apply pagination
+        users = query.offset(skip).limit(limit).all()
+        
+        return users, total
+
+    @staticmethod
+    def deactivate_user(db: Session, user_id: int) -> bool:
+        """Deactivate a user"""
+        user = UserService.get_user(db, user_id)
+        if not user:
+            return False
+        
+        db.query(User).filter(User.id == user_id).update({"is_active": False})
+        db.commit()
+        return True
+
+    @staticmethod
+    def activate_user(db: Session, user_id: int) -> bool:
+        """Activate a user"""
+        user = UserService.get_user(db, user_id)
+        if not user:
+            return False
+        
+        db.query(User).filter(User.id == user_id).update({"is_active": True})
+        db.commit()
         return True
 
 
