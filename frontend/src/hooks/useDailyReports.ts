@@ -138,13 +138,14 @@ export function useSubmitDailyReport() {
     dailyReportsKeys.reports(),
     async (key, { arg }: { arg: number }) => {
       const result = await DailyReportsAPI.submitReport(arg);
-      return result;
+      return { ...result, reportId: arg };
     },
     {
-      onSuccess: (data, key, config) => {
-        const reportId = config.arg;
-        // Revalidate specific report and reports list
-        mutate(dailyReportsKeys.report(reportId));
+      onSuccess: (data) => {
+        if (data && 'reportId' in data) {
+          // Revalidate specific report and reports list
+          mutate(dailyReportsKeys.report(data.reportId as number));
+        }
         mutate(dailyReportsKeys.reports());
       },
     }
@@ -193,13 +194,14 @@ export function useUploadPhotos() {
         arg.reportId,
         arg.files
       );
-      return result;
+      return { ...result, reportId: arg.reportId };
     },
     {
-      onSuccess: (data, key, config) => {
-        const reportId = config.arg.reportId;
-        // Revalidate specific report
-        mutate(dailyReportsKeys.report(reportId));
+      onSuccess: (data) => {
+        if (data && 'reportId' in data) {
+          // Revalidate specific report
+          mutate(dailyReportsKeys.report(data.reportId as number));
+        }
       },
     }
   );

@@ -22,7 +22,7 @@ import {
   TableHead,
   TableRow,
   Alert,
-  CircularProgress
+  CircularProgress,
 } from '@mui/material';
 import {
   ArrowBack as ArrowBackIcon,
@@ -37,16 +37,16 @@ import {
   AttachMoney as MoneyIcon,
   Build as BuildIcon,
   Speed as SpeedIcon,
-  Warning as WarningIcon
+  Warning as WarningIcon,
 } from '@mui/icons-material';
 import { useRouter } from 'next/navigation';
 import { Breadcrumbs, Link } from '@mui/material';
-import { 
-  useKPIMetrics, 
-  useEquipmentPerformance, 
+import {
+  useKPIMetrics,
+  useEquipmentPerformance,
   useAvailableReports,
   formatCurrency,
-  formatPercentage 
+  formatPercentage,
 } from '@/hooks/useReports';
 
 // Types for reports
@@ -61,7 +61,7 @@ export default function ReportsPage() {
   // Fetch data using SWR hooks
   const { data: kpiData } = useKPIMetrics(dateRange);
   const { data: equipmentData } = useEquipmentPerformance(
-    selectedEquipment === 'all' ? undefined : selectedEquipment, 
+    selectedEquipment === 'all' ? undefined : selectedEquipment,
     dateRange
   );
   const { data: reportsData } = useAvailableReports();
@@ -69,17 +69,17 @@ export default function ReportsPage() {
   // Mock current user with admin role
   const mockCurrentUser = {
     id: 1,
-    roles: [{ name: 'admin', permissions: ['reports.view', 'reports.export'] }]
+    roles: [{ name: 'admin', permissions: ['reports.view', 'reports.export'] }],
   };
 
   const currentUser = mockCurrentUser;
 
   // Check permissions
-  const canViewReports = currentUser?.roles?.some(role => 
+  const canViewReports = currentUser?.roles?.some((role) =>
     role.permissions?.includes('reports.view')
   );
 
-  const canExportReports = currentUser?.roles?.some(role => 
+  const canExportReports = currentUser?.roles?.some((role) =>
     role.permissions?.includes('reports.export')
   );
 
@@ -87,7 +87,8 @@ export default function ReportsPage() {
     return (
       <Container maxWidth="xl" sx={{ py: 4 }}>
         <Alert severity="error">
-          You don&apos;t have permission to view reports. Contact your administrator.
+          You don&apos;t have permission to view reports. Contact your
+          administrator.
         </Alert>
       </Container>
     );
@@ -100,136 +101,138 @@ export default function ReportsPage() {
   const handleGenerateReport = async () => {
     setIsGenerating(true);
     // Simulate report generation
-    await new Promise(resolve => setTimeout(resolve, 2000));
+    await new Promise((resolve) => setTimeout(resolve, 2000));
     setIsGenerating(false);
     // In real app, this would trigger download or show success message
   };
 
   const handleExportPDF = async () => {
     if (!canExportReports) {
-      alert('You don\'t have permission to export reports');
+      alert("You don't have permission to export reports");
       return;
     }
-    
+
     setIsGenerating(true);
     // Simulate PDF generation
-    await new Promise(resolve => setTimeout(resolve, 1500));
+    await new Promise((resolve) => setTimeout(resolve, 1500));
     setIsGenerating(false);
     // In real app, this would trigger PDF download
   };
 
   // Use real data if available, fallback to mock data for demonstration
-  const kpiMetrics = kpiData ? [
-    {
-      id: 'utilization',
-      title: 'Equipment Utilization Rate',
-      value: formatPercentage(kpiData.equipment_utilization_rate),
-      change: '+5%',
-      trend: 'up',
-      icon: <SpeedIcon />,
-      color: 'success'
-    },
-    {
-      id: 'cost_savings',
-      title: 'Cost Savings vs Rental',
-      value: formatCurrency(kpiData.cost_savings_vs_rental),
-      change: '+12%',
-      trend: 'up',
-      icon: <MoneyIcon />,
-      color: 'primary'
-    },
-    {
-      id: 'timesheet_completion',
-      title: 'Timesheet Completion Rate',
-      value: formatPercentage(kpiData.timesheet_completion_rate),
-      change: '+2%',
-      trend: 'up',
-      icon: <AssessmentIcon />,
-      color: 'success'
-    },
-    {
-      id: 'report_compliance',
-      title: 'Daily Report Compliance',
-      value: formatPercentage(kpiData.daily_report_compliance),
-      change: 'stable',
-      trend: 'stable',
-      icon: <TrendingUpIcon />,
-      color: 'success'
-    },
-    {
-      id: 'downtime',
-      title: 'Equipment Downtime',
-      value: formatPercentage(kpiData.equipment_downtime),
-      change: '-1.5%',
-      trend: 'down',
-      icon: <WarningIcon />,
-      color: 'warning'
-    },
-    {
-      id: 'roi',
-      title: 'Average Equipment ROI',
-      value: formatPercentage(kpiData.average_equipment_roi),
-      change: '+18%',
-      trend: 'up',
-      icon: <ShowChartIcon />,
-      color: 'primary'
-    }
-  ] : [
-    {
-      id: 'utilization',
-      title: 'Equipment Utilization Rate',
-      value: '87%',
-      change: '+5%',
-      trend: 'up',
-      icon: <SpeedIcon />,
-      color: 'success'
-    },
-    {
-      id: 'cost_savings',
-      title: 'Cost Savings vs Rental',
-      value: '₹2.5M',
-      change: '+12%',
-      trend: 'up',
-      icon: <MoneyIcon />,
-      color: 'primary'
-    },
-    {
-      id: 'timesheet_completion',
-      title: 'Timesheet Completion Rate',
-      value: '96%',
-      change: '+2%',
-      trend: 'up',
-      icon: <AssessmentIcon />,
-      color: 'success'
-    },
-    {
-      id: 'report_compliance',
-      title: 'Daily Report Compliance',
-      value: '98%',
-      change: 'stable',
-      trend: 'stable',
-      icon: <TrendingUpIcon />,
-      color: 'success'
-    },
-    {
-      id: 'downtime',
-      title: 'Equipment Downtime',
-      value: '4.2%',
-      change: '-1.5%',
-      trend: 'down',
-      icon: <WarningIcon />,
-      color: 'warning'
-    },
-    {
-      id: 'roi',
-      title: 'Average Equipment ROI',
-      value: '285%',
-      change: '+18%',
-      trend: 'up',
-      icon: <ShowChartIcon />,
-      color: 'primary'
-    }
-  ];
+  const kpiMetrics = kpiData
+    ? [
+        {
+          id: 'utilization',
+          title: 'Equipment Utilization Rate',
+          value: formatPercentage(kpiData.equipment_utilization_rate),
+          change: '+5%',
+          trend: 'up',
+          icon: <SpeedIcon />,
+          color: 'success',
+        },
+        {
+          id: 'cost_savings',
+          title: 'Cost Savings vs Rental',
+          value: formatCurrency(kpiData.cost_savings_vs_rental),
+          change: '+12%',
+          trend: 'up',
+          icon: <MoneyIcon />,
+          color: 'primary',
+        },
+        {
+          id: 'timesheet_completion',
+          title: 'Timesheet Completion Rate',
+          value: formatPercentage(kpiData.timesheet_completion_rate),
+          change: '+2%',
+          trend: 'up',
+          icon: <AssessmentIcon />,
+          color: 'success',
+        },
+        {
+          id: 'report_compliance',
+          title: 'Daily Report Compliance',
+          value: formatPercentage(kpiData.daily_report_compliance),
+          change: 'stable',
+          trend: 'stable',
+          icon: <TrendingUpIcon />,
+          color: 'success',
+        },
+        {
+          id: 'downtime',
+          title: 'Equipment Downtime',
+          value: formatPercentage(kpiData.equipment_downtime),
+          change: '-1.5%',
+          trend: 'down',
+          icon: <WarningIcon />,
+          color: 'warning',
+        },
+        {
+          id: 'roi',
+          title: 'Average Equipment ROI',
+          value: formatPercentage(kpiData.average_equipment_roi),
+          change: '+18%',
+          trend: 'up',
+          icon: <ShowChartIcon />,
+          color: 'primary',
+        },
+      ]
+    : [
+        {
+          id: 'utilization',
+          title: 'Equipment Utilization Rate',
+          value: '87%',
+          change: '+5%',
+          trend: 'up',
+          icon: <SpeedIcon />,
+          color: 'success',
+        },
+        {
+          id: 'cost_savings',
+          title: 'Cost Savings vs Rental',
+          value: '₹2.5M',
+          change: '+12%',
+          trend: 'up',
+          icon: <MoneyIcon />,
+          color: 'primary',
+        },
+        {
+          id: 'timesheet_completion',
+          title: 'Timesheet Completion Rate',
+          value: '96%',
+          change: '+2%',
+          trend: 'up',
+          icon: <AssessmentIcon />,
+          color: 'success',
+        },
+        {
+          id: 'report_compliance',
+          title: 'Daily Report Compliance',
+          value: '98%',
+          change: 'stable',
+          trend: 'stable',
+          icon: <TrendingUpIcon />,
+          color: 'success',
+        },
+        {
+          id: 'downtime',
+          title: 'Equipment Downtime',
+          value: '4.2%',
+          change: '-1.5%',
+          trend: 'down',
+          icon: <WarningIcon />,
+          color: 'warning',
+        },
+        {
+          id: 'roi',
+          title: 'Average Equipment ROI',
+          value: '285%',
+          change: '+18%',
+          trend: 'up',
+          icon: <ShowChartIcon />,
+          color: 'primary',
+        },
+      ];
 
   // Use real equipment data if available, fallback to mock data
   const equipmentReports = equipmentData || [
@@ -242,7 +245,7 @@ export default function ReportsPage() {
       cost_per_hour: 1200,
       total_cost: 223200,
       roi: 340,
-      status: 'active'
+      status: 'active',
     },
     {
       id: 2,
@@ -253,7 +256,7 @@ export default function ReportsPage() {
       cost_per_hour: 950,
       total_cost: 190950,
       roi: 280,
-      status: 'active'
+      status: 'active',
     },
     {
       id: 3,
@@ -264,7 +267,7 @@ export default function ReportsPage() {
       cost_per_hour: 800,
       total_cost: 124800,
       roi: 195,
-      status: 'maintenance'
+      status: 'maintenance',
     },
     {
       id: 4,
@@ -275,8 +278,8 @@ export default function ReportsPage() {
       cost_per_hour: 1800,
       total_cost: 261000,
       roi: 420,
-      status: 'active'
-    }
+      status: 'active',
+    },
   ];
 
   // Use real reports data if available, fallback to mock data
@@ -287,7 +290,7 @@ export default function ReportsPage() {
       description: 'Comprehensive equipment usage statements and valuations',
       type: 'equipment',
       last_generated: '2024-08-15',
-      format: 'PDF'
+      format: 'PDF',
     },
     {
       id: 'performance_analytics',
@@ -295,7 +298,7 @@ export default function ReportsPage() {
       description: 'Equipment costs, utilization, and ROI analysis',
       type: 'operational',
       last_generated: '2024-08-16',
-      format: 'PDF'
+      format: 'PDF',
     },
     {
       id: 'cost_analysis',
@@ -303,7 +306,7 @@ export default function ReportsPage() {
       description: 'Equipment usage costs and budget adherence',
       type: 'financial',
       last_generated: '2024-08-14',
-      format: 'Excel'
+      format: 'Excel',
     },
     {
       id: 'operator_performance',
@@ -311,7 +314,7 @@ export default function ReportsPage() {
       description: 'Operator productivity and salary calculations',
       type: 'operational',
       last_generated: '2024-08-13',
-      format: 'PDF'
+      format: 'PDF',
     },
     {
       id: 'maintenance_schedule',
@@ -319,25 +322,35 @@ export default function ReportsPage() {
       description: 'Equipment maintenance tracking and optimization',
       type: 'maintenance',
       last_generated: '2024-08-12',
-      format: 'CSV'
-    }
+      format: 'CSV',
+    },
   ];
 
-  const getStatusColor = (status: string): 'success' | 'warning' | 'default' => {
+  const getStatusColor = (
+    status: string
+  ): 'success' | 'warning' | 'default' => {
     switch (status) {
-      case 'active': return 'success';
-      case 'maintenance': return 'warning';
-      case 'idle': return 'default';
-      default: return 'default';
+      case 'active':
+        return 'success';
+      case 'maintenance':
+        return 'warning';
+      case 'idle':
+        return 'default';
+      default:
+        return 'default';
     }
   };
 
   const getTrendIcon = (trend: string) => {
     switch (trend) {
-      case 'up': return '↗️';
-      case 'down': return '↘️';
-      case 'stable': return '➡️';
-      default: return '➡️';
+      case 'up':
+        return '↗️';
+      case 'down':
+        return '↘️';
+      case 'stable':
+        return '➡️';
+      default:
+        return '➡️';
     }
   };
 
@@ -369,7 +382,13 @@ export default function ReportsPage() {
         </Box>
 
         <Paper elevation={2} sx={{ p: 3, mb: 3 }}>
-          <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+          <Box
+            sx={{
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+            }}
+          >
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
               <AssessmentIcon sx={{ fontSize: 40, color: 'primary.main' }} />
               <Box>
@@ -383,7 +402,9 @@ export default function ReportsPage() {
             </Box>
             <Button
               variant="contained"
-              startIcon={isGenerating ? <CircularProgress size={20} /> : <BarChartIcon />}
+              startIcon={
+                isGenerating ? <CircularProgress size={20} /> : <BarChartIcon />
+              }
               disabled={isGenerating}
               onClick={handleGenerateReport}
             >
@@ -456,7 +477,11 @@ export default function ReportsPage() {
 
       {/* KPI Metrics Dashboard */}
       <Paper elevation={2} sx={{ p: 3, mb: 4 }}>
-        <Typography variant="h5" gutterBottom sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+        <Typography
+          variant="h5"
+          gutterBottom
+          sx={{ display: 'flex', alignItems: 'center', gap: 1 }}
+        >
           <TrendingUpIcon />
           Key Performance Indicators (KPIs)
         </Typography>
@@ -470,17 +495,31 @@ export default function ReportsPage() {
                       {metric.icon}
                     </Box>
                     <Box sx={{ flexGrow: 1 }}>
-                      <Typography variant="h6" color="text.secondary" fontSize="0.9rem">
+                      <Typography
+                        variant="h6"
+                        color="text.secondary"
+                        fontSize="0.9rem"
+                      >
                         {metric.title}
                       </Typography>
-                      <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                      <Box
+                        sx={{ display: 'flex', alignItems: 'center', gap: 1 }}
+                      >
                         <Typography variant="h4" component="div">
                           {metric.value}
                         </Typography>
                         <Chip
-                          label={`${getTrendIcon(metric.trend)} ${metric.change}`}
+                          label={`${getTrendIcon(metric.trend)} ${
+                            metric.change
+                          }`}
                           size="small"
-                          color={metric.trend === 'up' ? 'success' : metric.trend === 'down' ? 'error' : 'default'}
+                          color={
+                            metric.trend === 'up'
+                              ? 'success'
+                              : metric.trend === 'down'
+                              ? 'error'
+                              : 'default'
+                          }
                           variant="outlined"
                         />
                       </Box>
@@ -495,8 +534,18 @@ export default function ReportsPage() {
 
       {/* Equipment Performance Table */}
       <Paper elevation={2} sx={{ p: 3, mb: 4 }}>
-        <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 3 }}>
-          <Typography variant="h5" sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+        <Box
+          sx={{
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            mb: 3,
+          }}
+        >
+          <Typography
+            variant="h5"
+            sx={{ display: 'flex', alignItems: 'center', gap: 1 }}
+          >
             <BuildIcon />
             Equipment Performance Analysis
           </Typography>
@@ -511,7 +560,7 @@ export default function ReportsPage() {
             </Button>
           )}
         </Box>
-        
+
         <TableContainer>
           <Table>
             <TableHead>
@@ -536,12 +585,25 @@ export default function ReportsPage() {
                   </TableCell>
                   <TableCell>{equipment.equipment_type}</TableCell>
                   <TableCell align="center">
-                    <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 1 }}>
+                    <Box
+                      sx={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        gap: 1,
+                      }}
+                    >
                       <CircularProgress
                         variant="determinate"
                         value={equipment.utilization_rate}
                         size={30}
-                        color={equipment.utilization_rate > 85 ? 'success' : equipment.utilization_rate > 70 ? 'warning' : 'error'}
+                        color={
+                          equipment.utilization_rate > 85
+                            ? 'success'
+                            : equipment.utilization_rate > 70
+                            ? 'warning'
+                            : 'error'
+                        }
                       />
                       <Typography variant="body2">
                         {equipment.utilization_rate}%
@@ -549,12 +611,22 @@ export default function ReportsPage() {
                     </Box>
                   </TableCell>
                   <TableCell align="center">{equipment.total_hours}h</TableCell>
-                  <TableCell align="center">₹{equipment.cost_per_hour.toLocaleString()}</TableCell>
-                  <TableCell align="center">₹{equipment.total_cost.toLocaleString()}</TableCell>
+                  <TableCell align="center">
+                    ₹{equipment.cost_per_hour.toLocaleString()}
+                  </TableCell>
+                  <TableCell align="center">
+                    ₹{equipment.total_cost.toLocaleString()}
+                  </TableCell>
                   <TableCell align="center">
                     <Chip
                       label={`${equipment.roi}%`}
-                      color={equipment.roi > 300 ? 'success' : equipment.roi > 200 ? 'warning' : 'default'}
+                      color={
+                        equipment.roi > 300
+                          ? 'success'
+                          : equipment.roi > 200
+                          ? 'warning'
+                          : 'default'
+                      }
                       size="small"
                     />
                   </TableCell>
@@ -574,7 +646,11 @@ export default function ReportsPage() {
 
       {/* Available Reports Section */}
       <Paper elevation={2} sx={{ p: 3 }}>
-        <Typography variant="h5" gutterBottom sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+        <Typography
+          variant="h5"
+          gutterBottom
+          sx={{ display: 'flex', alignItems: 'center', gap: 1 }}
+        >
           <DownloadIcon />
           Available Reports
         </Typography>
@@ -589,12 +665,29 @@ export default function ReportsPage() {
                   <Typography variant="body2" color="text.secondary" paragraph>
                     {report.description}
                   </Typography>
-                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 2 }}>
+                  <Box
+                    sx={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: 1,
+                      mb: 2,
+                    }}
+                  >
                     <Chip label={report.type} size="small" />
-                    <Chip label={report.format} size="small" variant="outlined" />
+                    <Chip
+                      label={report.format}
+                      size="small"
+                      variant="outlined"
+                    />
                   </Box>
-                  <Typography variant="caption" color="text.secondary" display="block" gutterBottom>
-                    Last generated: {new Date(report.last_generated).toLocaleDateString()}
+                  <Typography
+                    variant="caption"
+                    color="text.secondary"
+                    display="block"
+                    gutterBottom
+                  >
+                    Last generated:{' '}
+                    {new Date(report.last_generated).toLocaleDateString()}
                   </Typography>
                   <Box sx={{ display: 'flex', gap: 1, mt: 2 }}>
                     <Button
