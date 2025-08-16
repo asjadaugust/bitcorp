@@ -190,8 +190,8 @@ def generate_report(
     """
     
     # Check permissions
-    user_permissions = [perm for role in current_user.roles for perm in role.permissions]
-    if "reports.view" not in user_permissions:
+    user_permissions = [perm.name for role in current_user.roles for perm in role.permissions]
+    if "report_view" not in user_permissions:
         raise HTTPException(status_code=403, detail="Not enough permissions")
     
     # Validate report type
@@ -233,8 +233,8 @@ def export_report_pdf(
     """
     
     # Check export permissions
-    user_permissions = [perm for role in current_user.roles for perm in role.permissions]
-    if "reports.export" not in user_permissions:
+    user_permissions = [perm.name for role in current_user.roles for perm in role.permissions]
+    if "report_export" not in user_permissions:
         raise HTTPException(status_code=403, detail="Not enough permissions to export reports")
     
     # In real implementation, this would:
@@ -260,8 +260,8 @@ def get_available_reports(
     """
     
     # Check permissions
-    user_permissions = [perm for role in current_user.roles for perm in role.permissions]
-    if "reports.view" not in user_permissions:
+    user_permissions = [perm.name for role in current_user.roles for perm in role.permissions]
+    if "report_view" not in user_permissions:
         raise HTTPException(status_code=403, detail="Not enough permissions")
     
     # Base reports available to all users with view permission

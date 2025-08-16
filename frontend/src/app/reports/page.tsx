@@ -94,18 +94,18 @@ export default function ReportsPage() {
   // Check permissions using actual user data
   const canViewReports =
     user &&
-    (hasPermission('reports.view') ||
-      hasPermission('admin') ||
+    (hasPermission('report_view') ||
+      hasPermission('system_admin') ||
       user.roles?.some((role) =>
-        role.permissions?.some((p) => p.name === 'reports.view')
+        role.permissions?.some((p) => p.name === 'report_view')
       ));
 
   const canExportReports =
     user &&
-    (hasPermission('reports.export') ||
-      hasPermission('admin') ||
+    (hasPermission('report_export') ||
+      hasPermission('system_admin') ||
       user.roles?.some((role) =>
-        role.permissions?.some((p) => p.name === 'reports.export')
+        role.permissions?.some((p) => p.name === 'report_export')
       ));
 
   if (!canViewReports) {
