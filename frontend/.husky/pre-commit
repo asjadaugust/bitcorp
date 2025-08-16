@@ -1,1 +1,22 @@
-npm test
+#!/usr/bin/env sh
+. "$(dirname -- "$0")/_/husky.sh"
+
+echo "🔍 Running pre-commit checks..."
+
+echo "📱 Checking Frontend..."
+cd frontend
+
+echo "🔍 Running TypeScript type check..."
+if ! npm run type-check 2>/dev/null; then
+  echo "❌ TypeScript check failed"
+  exit 1
+fi
+
+echo "🧹 Running linting..."
+if ! npm run lint 2>/dev/null; then
+  echo "❌ Linting failed"
+  exit 1
+fi
+
+echo "✅ Pre-commit checks passed!"
+cd ..
