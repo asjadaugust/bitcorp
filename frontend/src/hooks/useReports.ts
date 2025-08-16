@@ -10,9 +10,13 @@ import { authenticatedFetcher } from '@/lib/swr-fetcher';
 export const reportsKeys = {
   all: ['reports'] as const,
   kpis: (dateRange: number) => [...reportsKeys.all, 'kpis', dateRange] as const,
-  equipmentPerformance: (equipmentType?: string, dateRange?: number) => 
-    [...reportsKeys.all, 'equipment-performance', { equipmentType, dateRange }] as const,
-  financialSummary: (dateRange: number) => 
+  equipmentPerformance: (equipmentType?: string, dateRange?: number) =>
+    [
+      ...reportsKeys.all,
+      'equipment-performance',
+      { equipmentType, dateRange },
+    ] as const,
+  financialSummary: (dateRange: number) =>
     [...reportsKeys.all, 'financial-summary', dateRange] as const,
   availableReports: () => [...reportsKeys.all, 'available'] as const,
 };
@@ -95,7 +99,8 @@ export interface ReportResponse {
 export function useKPIMetrics(dateRange: number = 30) {
   return useSWR(
     reportsKeys.kpis(dateRange),
-    () => authenticatedFetcher<KPIMetrics>(`/reports/kpis?date_range=${dateRange}`),
+    () =>
+      authenticatedFetcher<KPIMetrics>(`/reports/kpis?date_range=${dateRange}`),
     {
       refreshInterval: 5 * 60 * 1000, // Refresh every 5 minutes
       revalidateOnFocus: false,
@@ -116,9 +121,10 @@ export function useEquipmentPerformance(
 
   return useSWR(
     reportsKeys.equipmentPerformance(equipmentType, dateRange),
-    () => authenticatedFetcher<EquipmentPerformanceReport[]>(
-      `/reports/equipment-performance?${params.toString()}`
-    ),
+    () =>
+      authenticatedFetcher<EquipmentPerformanceReport[]>(
+        `/reports/equipment-performance?${params.toString()}`
+      ),
     {
       refreshInterval: 10 * 60 * 1000, // Refresh every 10 minutes
     }
@@ -131,7 +137,10 @@ export function useEquipmentPerformance(
 export function useFinancialSummary(dateRange: number = 30) {
   return useSWR(
     reportsKeys.financialSummary(dateRange),
-    () => authenticatedFetcher<FinancialSummary>(`/reports/financial-summary?date_range=${dateRange}`),
+    () =>
+      authenticatedFetcher<FinancialSummary>(
+        `/reports/financial-summary?date_range=${dateRange}`
+      ),
     {
       refreshInterval: 15 * 60 * 1000, // Refresh every 15 minutes
     }
@@ -156,12 +165,14 @@ export function useAvailableReports() {
 /**
  * Generate a new report
  */
-export async function generateReport(request: ReportRequest): Promise<ReportResponse> {
+export async function generateReport(
+  request: ReportRequest
+): Promise<ReportResponse> {
   const response = await fetch('/api/v1/reports/generate', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
-      'Authorization': `Bearer ${localStorage.getItem('access_token')}`,
+      Authorization: `Bearer ${localStorage.getItem('access_token')}`,
     },
     body: JSON.stringify(request),
   });
@@ -185,7 +196,7 @@ export async function exportReportPDF(
     {
       method: 'GET',
       headers: {
-        'Authorization': `Bearer ${localStorage.getItem('access_token')}`,
+        Authorization: `Bearer ${localStorage.getItem('access_token')}`,
       },
     }
   );
@@ -203,7 +214,7 @@ export async function exportReportPDF(
 export async function downloadReport(fileUrl: string): Promise<Blob> {
   const response = await fetch(fileUrl, {
     headers: {
-      'Authorization': `Bearer ${localStorage.getItem('access_token')}`,
+      Authorization: `Bearer ${localStorage.getItem('access_token')}`,
     },
   });
 
@@ -263,5 +274,5 @@ export function formatFileSize(bytes: number): string {
   const sizes = ['Bytes', 'KB', 'MB', 'GB'];
   if (bytes === 0) return '0 Bytes';
   const i = Math.floor(Math.log(bytes) / Math.log(1024));
-  return Math.round(bytes / Math.pow(1024, i) * 100) / 100 + ' ' + sizes[i];
+  return Math.round((bytes / Math.pow(1024, i)) * 100) / 100 + ' ' + sizes[i];
 }

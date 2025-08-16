@@ -3,7 +3,7 @@ import { test, expect } from '@playwright/test';
 test.describe('User Management Module', () => {
   test.beforeEach(async ({ page }) => {
     // Navigate to the user management page
-    await page.goto('http://localhost:3001/users');
+    await page.goto('http://localhost:3000/users');
   });
 
   test('should display user management page with proper layout', async ({ page }) => {
@@ -104,7 +104,7 @@ test.describe('User Management Module', () => {
 
 test.describe('Role-Based Access Control', () => {
   test('should show appropriate UI elements for admin users', async ({ page }) => {
-    await page.goto('http://localhost:3001/users');
+    await page.goto('http://localhost:3000/users');
     
     // Admin should see add user button
     await expect(page.getByRole('button', { name: /add user/i })).toBeVisible();
