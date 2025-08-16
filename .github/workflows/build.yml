@@ -2,14 +2,14 @@ name: Build and Test
 
 on:
   push:
-    branches: [ main, develop ]
+    branches: [main, develop]
   pull_request:
-    branches: [ main ]
+    branches: [main]
 
 jobs:
   backend:
     runs-on: ubuntu-latest
-    
+
     services:
       postgres:
         image: postgres:15
@@ -26,65 +26,65 @@ jobs:
           - 5432:5432
 
     steps:
-    - uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
-    - name: Set up Python 3.11
-      uses: actions/setup-python@v4
-      with:
-        python-version: '3.11'
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
 
-    - name: Cache pip dependencies
-      uses: actions/cache@v3
-      with:
-        path: ~/.cache/pip
-        key: ${{ runner.os }}-pip-${{ hashFiles('backend/requirements.txt') }}
-        restore-keys: |
-          ${{ runner.os }}-pip-
+      - name: Cache pip dependencies
+        uses: actions/cache@v3
+        with:
+          path: ~/.cache/pip
+          key: ${{ runner.os }}-pip-${{ hashFiles('backend/requirements.txt') }}
+          restore-keys: |
+            ${{ runner.os }}-pip-
 
-    - name: Install backend dependencies
-      run: |
-        cd backend
-        python -m pip install --upgrade pip
-        pip install -r requirements.txt
+      - name: Install backend dependencies
+        run: |
+          cd backend
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
 
-    - name: Lint backend code
-      run: |
-        cd backend
-        python -m flake8 app --count --select=E9,F63,F7,F82 --show-source --statistics
-        python -m flake8 app --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
+      - name: Lint backend code
+        run: |
+          cd backend
+          python -m flake8 app --count --select=E9,F63,F7,F82 --show-source --statistics
+          python -m flake8 app --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
 
-    - name: Test backend imports and syntax
-      env:
-        DATABASE_URL: postgresql://bitcorp:password@localhost:5432/bitcorp_erp
-      run: |
-        cd backend
-        python -c "import app.main; print('✅ Backend imports successfully')"
-        python -c "from app.main import app; print('✅ FastAPI app created successfully')"
+      - name: Test backend imports and syntax
+        env:
+          DATABASE_URL: postgresql://bitcorp:password@localhost:5432/bitcorp_erp
+        run: |
+          cd backend
+          python -c "import app.main; print('✅ Backend imports successfully')"
+          python -c "from app.main import app; print('✅ FastAPI app created successfully')"
 
   frontend:
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
-    - name: Set up Node.js
-      uses: actions/setup-node@v4
-      with:
-        node-version: '18'
-        cache: 'npm'
-        cache-dependency-path: 'package-lock.json'
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+          cache-dependency-path: 'package-lock.json'
 
-    - name: Install frontend dependencies
-      run: npm ci --workspace=frontend
+      - name: Install frontend dependencies
+        run: npm ci --workspace=frontend
 
-    - name: Lint frontend code
-      run: npm run lint --workspace=frontend
+      - name: Lint frontend code
+        run: npm run lint --workspace=frontend
 
-    - name: Type check frontend
-      run: npm run type-check --workspace=frontend
+      - name: Type check frontend
+        run: npm run type-check --workspace=frontend
 
-    - name: Build frontend
-      run: npm run build --workspace=frontend
+      - name: Build frontend
+        run: npm run build --workspace=frontend
 
   integration:
     runs-on: ubuntu-latest
@@ -106,27 +106,27 @@ jobs:
           - 5432:5432
 
     steps:
-    - uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
-    - name: Set up Python 3.11
-      uses: actions/setup-python@v4
-      with:
-        python-version: '3.11'
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
 
-    - name: Set up Node.js
-      uses: actions/setup-node@v4
-      with:
-        node-version: '18'
-        cache: 'npm'
-        cache-dependency-path: 'package-lock.json'
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+          cache-dependency-path: 'package-lock.json'
 
-    - name: Install dependencies
-      run: |
-        cd backend && pip install -r requirements.txt
-        npm ci --workspace=frontend
+      - name: Install dependencies
+        run: |
+          cd backend && pip install -r requirements.txt
+          npm ci --workspace=frontend
 
-    - name: Run integration build test
-      env:
-        DATABASE_URL: postgresql://bitcorp:password@localhost:5432/bitcorp_erp
-      run: |
-        make build
+      - name: Run integration build test
+        env:
+          DATABASE_URL: postgresql://bitcorp:password@localhost:5432/bitcorp_erp
+        run: |
+          make build

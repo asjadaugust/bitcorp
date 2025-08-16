@@ -34,6 +34,7 @@ import {
   Notifications as Bell,
   CalendarToday as Calendar,
   AttachMoney as DollarSign,
+  Sensors as SensorsIcon,
 } from '@mui/icons-material';
 
 export default function DashboardPage() {
@@ -60,7 +61,9 @@ export default function DashboardPage() {
         <Box sx={{ textAlign: 'center' }}>
           <CircularProgress size={48} sx={{ mb: 2 }} />
           <Typography color="text.secondary">
-            {!isAuthenticated ? 'Redirecting to login...' : 'Loading dashboard...'}
+            {!isAuthenticated
+              ? 'Redirecting to login...'
+              : 'Loading dashboard...'}
           </Typography>
         </Box>
       </Box>
@@ -85,11 +88,19 @@ export default function DashboardPage() {
       available: true,
     },
     {
+      title: 'IoT Monitoring',
+      description: 'Real-time equipment monitoring and predictive maintenance',
+      icon: SensorsIcon,
+      href: '/iot',
+      color: 'info.main',
+      available: true,
+    },
+    {
       title: 'Equipment Scheduling',
       description: 'Schedule equipment assignments and track availability',
       icon: Calendar,
       href: '/scheduling',
-      color: 'info.main',
+      color: 'secondary.main',
       available: true,
     },
     {
@@ -105,7 +116,7 @@ export default function DashboardPage() {
       description: 'View performance reports and analytics',
       icon: BarChart3,
       href: '/reports',
-      color: 'secondary.main',
+      color: 'warning.main',
       available: isManager || isAdmin || isDeveloper,
     },
     {
@@ -113,7 +124,7 @@ export default function DashboardPage() {
       description: 'Configure system settings and preferences',
       icon: Settings,
       href: '/settings',
-      color: 'warning.main',
+      color: 'error.main',
       available: isAdmin || isDeveloper,
     },
   ];

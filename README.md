@@ -8,7 +8,60 @@
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.x-blue.svg)](https://typescriptlang.org)
 [![Material-UI](https://img.shields.io/badge/Material--UI-7.x-blue.svg)](https://mui.com)
 
+## 🎉 Latest Achievement: Architecture Restructured Following Propuesta.md!
+
+**� New Folder Structure Implemented - Simplified Deployment!**
+
+✅ **Propuesta.md Compliance** - Project structure now follows architectural specifications  
+✅ **Single Command Deployment** - `docker-compose up` from root directory  
+✅ **Organized Applications** - Apps separated into web and mobile directories  
+✅ **Configuration Centralized** - All config files in dedicated directory  
+
+**🚀 Start Now**: `docker-compose up` (from project root)  
+**📁 Apps Location**: `bitcorp/apps-web/erp-main/` for backend & frontend  
+**📚 Documentation**: See project structure below  
+
+---
+
 A comprehensive Enterprise Resource Planning (ERP) system specifically designed for civil engineering and construction companies. This modern solution provides complete equipment lifecycle management, from procurement to disposal, with advanced analytics, real-time monitoring, and professional-grade code quality enforcement.
+
+## 🚀 Quick Start (New Simplified Process)
+
+**Single Command Deployment:**
+```bash
+docker-compose up
+```
+
+This starts all services:
+- 📊 PostgreSQL database (port 5433)
+- 🔴 Redis cache (port 6379)  
+- ⚡ FastAPI backend (port 8000)
+- 🌐 Next.js frontend (port 3000)
+- 🛠️ pgAdmin (port 5050)
+
+## 📁 New Project Structure (Following Propuesta.md)
+
+```
+BITCORP/                             # Project root
+├── bitcorp/                         # Main application folder
+│   ├── apps-web/                    # Web applications
+│   │   └── erp-main/                # Main ERP application
+│   │       ├── backend/             # FastAPI backend
+│   │       └── frontend/            # Next.js frontend
+│   ├── apps-movil/                  # Mobile applications (future)
+│   ├── backend-framework-core/      # Core backend frameworks
+│   ├── config/                      # Configuration files & scripts
+│   └── doc/                         # Documentation
+├── runtime-python/                  # Python runtime environment
+├── external_libs/                   # External libraries
+│   └── node/                       # Node.js dependencies
+├── deploy/                         # Deployment configurations
+│   └── docker/                     # Docker configurations
+├── kubernetes/                     # Kubernetes configurations
+│   └── init-scripts/              # Database initialization
+├── docker-compose.yml             # Single-command deployment
+└── .envrc                         # Development environment
+```
 
 ## 🎯 Project Overview
 
@@ -35,6 +88,53 @@ Bitcorp ERP transforms how construction companies manage their equipment assets 
 - [direnv](https://direnv.net/) for environment management
 - [Docker](https://docker.com) for services
 - Node.js 18+ for frontend
+
+### Platform-Specific Setup
+
+#### macOS/Linux (Recommended)
+
+```bash
+# Clone and navigate to project
+git clone <repository-url>
+cd bitcorp
+
+# Environment auto-activates with direnv!
+# Run setup script
+./scripts/dev.sh setup
+
+# Start all services
+./scripts/dev.sh start
+```
+
+#### Windows
+
+**🪟 Windows Users**: We provide dedicated Windows scripts for PowerShell and Command Prompt!
+
+**PowerShell (Recommended):**
+```powershell
+# Navigate to scripts directory
+cd scripts
+
+# Run setup (first time only)
+.\dev.ps1 setup
+
+# Start all services
+.\dev.ps1 start
+```
+
+**Command Prompt:**
+```batch
+# Navigate to scripts directory
+cd scripts
+
+# Run setup (first time only)
+dev.bat setup
+
+# Start all services
+dev.bat start
+```
+
+📚 **Complete Windows Setup Guide**: [docs/WINDOWS_SETUP_GUIDE_v2.md](./docs/WINDOWS_SETUP_GUIDE_v2.md)
 
 ### One-Command Setup
 ```bash

@@ -1,13 +1,13 @@
-'use client'
+'use client';
 
-import React, { Suspense } from 'react'
-import { useForm, Controller } from 'react-hook-form'
-import { zodResolver } from '@hookform/resolvers/zod'
-import { z } from 'zod'
-import { useAuth } from '@/hooks/useAuth'
-import { useRouter, useSearchParams } from 'next/navigation'
-import { useEffect } from 'react'
-import Link from 'next/link'
+import React, { Suspense } from 'react';
+import { useForm, Controller } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { z } from 'zod';
+import { useAuth } from '@/hooks/useAuth';
+import { useRouter, useSearchParams } from 'next/navigation';
+import { useEffect } from 'react';
+import Link from 'next/link';
 import {
   Box,
   Card,
@@ -20,29 +20,30 @@ import {
   InputAdornment,
   IconButton,
   Paper,
-} from '@mui/material'
+} from '@mui/material';
 import {
   Visibility,
   VisibilityOff,
   Login as LoginIcon,
   Person,
   Lock,
-} from '@mui/icons-material'
+} from '@mui/icons-material';
 
 const loginSchema = z.object({
   username: z.string().min(1, 'Username or email is required'),
   password: z.string().min(1, 'Password is required'),
-})
+});
 
-type LoginFormData = z.infer<typeof loginSchema>
+type LoginFormData = z.infer<typeof loginSchema>;
 
 function LoginForm() {
-  const router = useRouter()
-  const searchParams = useSearchParams()
-  const { login, isAuthenticated, isLoginPending, error, isInitialized } = useAuth()
-  const [showPassword, setShowPassword] = React.useState(false)
-  
-  const message = searchParams.get('message')
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const { login, isAuthenticated, isLoginPending, error, isInitialized } =
+    useAuth();
+  const [showPassword, setShowPassword] = React.useState(false);
+
+  const message = searchParams.get('message');
 
   const {
     control,
@@ -50,18 +51,18 @@ function LoginForm() {
     formState: { errors },
   } = useForm<LoginFormData>({
     resolver: zodResolver(loginSchema),
-  })
+  });
 
   // Redirect if already authenticated - but only after initialization
   useEffect(() => {
     if (isInitialized && isAuthenticated) {
-      router.push('/dashboard')
+      router.push('/dashboard');
     }
-  }, [isAuthenticated, isInitialized, router])
+  }, [isAuthenticated, isInitialized, router]);
 
   const onSubmit = (data: LoginFormData) => {
-    login(data)
-  }
+    login(data);
+  };
 
   // Show loading state while initializing or checking authentication to prevent flicker
   if (!isInitialized || (isInitialized && isAuthenticated)) {
@@ -77,15 +78,13 @@ function LoginForm() {
       >
         <Container maxWidth="sm">
           <Box sx={{ textAlign: 'center' }}>
-            <Typography variant="h6" color="text.secondary"
-              sx={{ mb: 2 }}
-            >
+            <Typography variant="h6" color="text.secondary" sx={{ mb: 2 }}>
               {isAuthenticated ? 'Redirecting to dashboard...' : 'Loading...'}
             </Typography>
           </Box>
         </Container>
       </Box>
-    )
+    );
   }
 
   return (
@@ -250,13 +249,26 @@ function LoginForm() {
                 bgcolor: 'grey.50',
               }}
             >
-              <Typography variant="caption" display="block" fontWeight="medium" gutterBottom>
+              <Typography
+                variant="caption"
+                display="block"
+                fontWeight="medium"
+                gutterBottom
+              >
                 Demo Credentials:
               </Typography>
-              <Typography variant="caption" display="block" color="text.secondary">
+              <Typography
+                variant="caption"
+                display="block"
+                color="text.secondary"
+              >
                 <strong>Admin:</strong> admin@bitcorp.com / admin123!
               </Typography>
-              <Typography variant="caption" display="block" color="text.secondary">
+              <Typography
+                variant="caption"
+                display="block"
+                color="text.secondary"
+              >
                 <strong>Developer:</strong> developer@bitcorp.com / dev123!
               </Typography>
             </Paper>
@@ -264,7 +276,7 @@ function LoginForm() {
         </Card>
       </Container>
     </Box>
-  )
+  );
 }
 
 export default function LoginPage() {
@@ -272,5 +284,5 @@ export default function LoginPage() {
     <Suspense fallback={<div>Loading...</div>}>
       <LoginForm />
     </Suspense>
-  )
+  );
 }
