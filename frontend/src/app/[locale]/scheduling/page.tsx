@@ -26,14 +26,14 @@ import {
   Home as HomeIcon,
   Close as CloseIcon,
 } from '@mui/icons-material';
-import { useRouter } from 'next/navigation';
+import { useRouter } from '@/i18n/navigation';
 import { format } from 'date-fns';
-import { ScheduleForm } from '../../components/scheduling/ScheduleForm';
-import { ScheduleCalendarView } from '../../components/scheduling/ScheduleCalendarView';
-import { ScheduleTimelineView } from '../../components/scheduling/ScheduleTimelineView';
-import { ProjectOperatorSelectors } from '../../components/scheduling/ProjectOperatorSelectors';
-import { useScheduleList, useDeleteSchedule } from '../../hooks/useScheduling';
-import type { EquipmentSchedule } from '../../types/scheduling';
+import { ScheduleForm } from '@/components/scheduling/ScheduleForm';
+import { ScheduleCalendarView } from '@/components/scheduling/ScheduleCalendarView';
+import { ScheduleTimelineView } from '@/components/scheduling/ScheduleTimelineView';
+import { ProjectOperatorSelectors } from '@/components/scheduling/ProjectOperatorSelectors';
+import { useScheduleList, useDeleteSchedule } from '@/hooks/useScheduling';
+import type { EquipmentSchedule } from '@/types/scheduling';
 
 interface TabPanelProps {
   children?: React.ReactNode;
