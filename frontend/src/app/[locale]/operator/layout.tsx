@@ -24,7 +24,9 @@ import {
   History,
 } from '@mui/icons-material';
 import { useState } from 'react';
-import { useRouter } from 'next/navigation';
+import { useRouter } from '@/i18n/navigation';
+import { useTranslations } from 'next-intl';
+import { LanguageSwitcher } from '@/components/ui/LanguageSwitcher';
 
 const drawerWidth = 240;
 
@@ -37,27 +39,33 @@ export default function OperatorLayout({ children }: OperatorLayoutProps) {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('md'));
   const router = useRouter();
+  const t = useTranslations('Navigation');
+  const tOperator = useTranslations('Operator');
 
   const handleDrawerToggle = () => {
     setMobileOpen(!mobileOpen);
   };
 
   const menuItems = [
-    { text: 'Dashboard', icon: <Home />, path: '/operator' },
+    { text: t('dashboard'), icon: <Home />, path: '/operator' },
     {
-      text: 'New Report',
+      text: tOperator('dailyReport'),
       icon: <Assignment />,
       path: '/operator/daily-report',
     },
-    { text: 'Report History', icon: <History />, path: '/operator/history' },
-    { text: 'Profile', icon: <Person />, path: '/operator/profile' },
+    {
+      text: tOperator('dailyReport'),
+      icon: <History />,
+      path: '/operator/history',
+    },
+    { text: t('profile'), icon: <Person />, path: '/operator/profile' },
   ];
 
   const drawer = (
     <div>
       <Toolbar>
         <Typography variant="h6" noWrap>
-          Operator Portal
+          {tOperator('title')}
         </Typography>
       </Toolbar>
       <List>
@@ -78,13 +86,13 @@ export default function OperatorLayout({ children }: OperatorLayoutProps) {
       <Box sx={{ flexGrow: 1 }} />
       <List>
         <ListItem
-          onClick={() => router.push('/auth/login')}
+          onClick={() => router.push('/login')}
           sx={{ cursor: 'pointer' }}
         >
           <ListItemIcon>
             <ExitToApp />
           </ListItemIcon>
-          <ListItemText primary="Logout" />
+          <ListItemText primary={t('logout')} />
         </ListItem>
       </List>
     </div>
@@ -109,9 +117,12 @@ export default function OperatorLayout({ children }: OperatorLayoutProps) {
           >
             <MenuIcon />
           </IconButton>
-          <Typography variant="h6" noWrap component="div">
-            Equipment Operator Portal
+          <Typography variant="h6" noWrap component="div" sx={{ flexGrow: 1 }}>
+            {tOperator('title')}
           </Typography>
+          <Box sx={{ mr: 2 }}>
+            <LanguageSwitcher />
+          </Box>
         </Toolbar>
       </AppBar>
 

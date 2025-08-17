@@ -1,7 +1,9 @@
 'use client';
 
 import { useAuth } from '@/hooks/useAuth';
-import { useRouter } from 'next/navigation';
+import { useRouter } from '@/i18n/navigation';
+import { useTranslations } from 'next-intl';
+import { useCurrencyFormatter } from '@/hooks/useCurrencyFormatter';
 import { useEffect } from 'react';
 import {
   Box,
@@ -36,10 +38,13 @@ import {
   AttachMoney as DollarSign,
   Sensors as SensorsIcon,
 } from '@mui/icons-material';
+import { LanguageSwitcher } from '@/components/ui/LanguageSwitcher';
 
 export default function DashboardPage() {
   const { user, isAuthenticated, logout, hasRole, isInitialized } = useAuth();
   const router = useRouter();
+  const t = useTranslations('Dashboard');
+  const { formatCurrency } = useCurrencyFormatter();
 
   useEffect(() => {
     if (isInitialized && !isAuthenticated) {
@@ -80,48 +85,48 @@ export default function DashboardPage() {
 
   const quickActions = [
     {
-      title: 'Equipment Management',
-      description: 'Manage equipment inventory and assignments',
+      title: t('quickActions.equipmentManagement.title'),
+      description: t('quickActions.equipmentManagement.description'),
       icon: Truck,
       href: '/equipment',
       color: 'primary.main',
       available: true,
     },
     {
-      title: 'IoT Monitoring',
-      description: 'Real-time equipment monitoring and predictive maintenance',
+      title: t('quickActions.iotMonitoring.title'),
+      description: t('quickActions.iotMonitoring.description'),
       icon: SensorsIcon,
       href: '/iot',
       color: 'info.main',
       available: true,
     },
     {
-      title: 'Equipment Scheduling',
-      description: 'Schedule equipment assignments and track availability',
+      title: t('quickActions.equipmentScheduling.title'),
+      description: t('quickActions.equipmentScheduling.description'),
       icon: Calendar,
       href: '/scheduling',
       color: 'secondary.main',
       available: true,
     },
     {
-      title: 'User Management',
-      description: 'Manage system users and permissions',
+      title: t('quickActions.userManagement.title'),
+      description: t('quickActions.userManagement.description'),
       icon: Users,
       href: '/users',
       color: 'success.main',
       available: isAdmin,
     },
     {
-      title: 'Reports & Analytics',
-      description: 'View performance reports and analytics',
+      title: t('quickActions.reportsAnalytics.title'),
+      description: t('quickActions.reportsAnalytics.description'),
       icon: BarChart3,
       href: '/reports',
       color: 'warning.main',
       available: isManager || isAdmin || isDeveloper,
     },
     {
-      title: 'System Settings',
-      description: 'Configure system settings and preferences',
+      title: t('quickActions.systemSettings.title'),
+      description: t('quickActions.systemSettings.description'),
       icon: Settings,
       href: '/settings',
       color: 'error.main',
@@ -131,28 +136,28 @@ export default function DashboardPage() {
 
   const stats = [
     {
-      title: 'Active Equipment',
+      title: t('stats.activeEquipment'),
       value: '24',
       change: '+12%',
       icon: Truck,
       color: 'primary.main',
     },
     {
-      title: 'Active Users',
+      title: t('stats.activeUsers'),
       value: '8',
       change: '+2',
       icon: Users,
       color: 'success.main',
     },
     {
-      title: 'This Month Revenue',
-      value: '$45,230',
+      title: t('stats.monthlyRevenue'),
+      value: formatCurrency(45230),
       change: '+8.2%',
       icon: DollarSign,
       color: 'secondary.main',
     },
     {
-      title: 'Scheduled Tasks',
+      title: t('stats.scheduledTasks'),
       value: '16',
       change: '+4',
       icon: Calendar,
@@ -162,20 +167,20 @@ export default function DashboardPage() {
 
   const recentActivities = [
     {
-      title: 'New user registration: John Operator',
-      time: '2 hours ago',
+      title: t('recentActivity.newUserRegistration', { name: 'John Operator' }),
+      time: t('recentActivity.timeAgo.hoursAgo', { hours: 2 }),
       icon: User,
       color: 'primary.main',
     },
     {
-      title: 'Equipment CAT-001 assigned to Project Alpha',
-      time: '4 hours ago',
+      title: t('recentActivity.equipmentAssigned', { equipment: 'CAT-001', project: 'Project Alpha' }),
+      time: t('recentActivity.timeAgo.hoursAgo', { hours: 4 }),
       icon: Truck,
       color: 'success.main',
     },
     {
-      title: 'Monthly report generated successfully',
-      time: '1 day ago',
+      title: t('recentActivity.monthlyReportGenerated'),
+      time: t('recentActivity.timeAgo.daysAgo', { days: 1 }),
       icon: BarChart3,
       color: 'secondary.main',
     },
@@ -188,10 +193,10 @@ export default function DashboardPage() {
         <Toolbar>
           <Box sx={{ flexGrow: 1 }}>
             <Typography variant="h4" component="h1" fontWeight="bold">
-              Dashboard
+              {t('title')}
             </Typography>
             <Typography variant="body1" color="text.secondary">
-              Welcome back, {user.full_name}
+              {t('welcomeBack', { name: user.full_name })}
             </Typography>
           </Box>
 
@@ -202,6 +207,9 @@ export default function DashboardPage() {
                 <Bell />
               </Badge>
             </IconButton>
+
+            {/* Language Switcher */}
+            <LanguageSwitcher />
 
             {/* User Menu */}
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
@@ -285,7 +293,7 @@ export default function DashboardPage() {
         {/* Quick Actions */}
         <Box sx={{ mb: 4 }}>
           <Typography variant="h5" gutterBottom fontWeight="semibold">
-            Quick Actions
+            {t('quickActionsTitle')}
           </Typography>
           <Grid container spacing={3}>
             {quickActions
@@ -343,7 +351,7 @@ export default function DashboardPage() {
         <Card>
           <CardContent>
             <Typography variant="h6" gutterBottom fontWeight="semibold">
-              Recent Activity
+              {t('recentActivityTitle')}
             </Typography>
             <List disablePadding>
               {recentActivities.map((activity, index) => (

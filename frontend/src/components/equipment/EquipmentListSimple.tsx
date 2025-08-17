@@ -1,4 +1,5 @@
 import React, { useState, useCallback } from 'react';
+import { useTranslations } from 'next-intl';
 import {
   Box,
   Card,
@@ -72,6 +73,10 @@ export const EquipmentList: React.FC<EquipmentListProps> = ({
   onEditEquipment,
   compact = false,
 }) => {
+  // Translations
+  const t = useTranslations('Equipment');
+  const tCommon = useTranslations('Common');
+  
   // State
   const [searchQuery, setSearchQuery] = useState('');
   const [page, setPage] = useState(1);
@@ -217,14 +222,14 @@ export const EquipmentList: React.FC<EquipmentListProps> = ({
           mb={3}
         >
           <Typography variant="h4" component="h1">
-            Equipment Management
+            {t('title')}
           </Typography>
           <Button
             variant="contained"
             startIcon={<AddIcon />}
             onClick={() => onEditEquipment?.(null)}
           >
-            Add Equipment
+            {t('addEquipment')}
           </Button>
         </Box>
       )}
@@ -240,7 +245,7 @@ export const EquipmentList: React.FC<EquipmentListProps> = ({
             >
               <TextField
                 sx={{ flex: 1 }}
-                placeholder="Search equipment..."
+                placeholder={tCommon('search') + '...'}
                 value={searchQuery}
                 onChange={handleSearchChange}
                 InputProps={{
@@ -258,14 +263,14 @@ export const EquipmentList: React.FC<EquipmentListProps> = ({
                   startIcon={<FilterIcon />}
                   onClick={() => setShowFilters(!showFilters)}
                 >
-                  Filters
+                  {tCommon('filter')}
                 </Button>
 
                 {(Object.values(filters).some(
                   (v) => v !== '' && v !== undefined
                 ) ||
                   searchQuery) && (
-                  <Tooltip title="Clear all filters">
+                  <Tooltip title={tCommon('clear')}>
                     <IconButton onClick={handleClearFilters} size="small">
                       <ClearIcon />
                     </IconButton>
@@ -277,10 +282,10 @@ export const EquipmentList: React.FC<EquipmentListProps> = ({
             {showFilters && (
               <Box display="flex" gap={2} flexWrap="wrap">
                 <FormControl size="small" sx={{ minWidth: 120 }}>
-                  <InputLabel>Status</InputLabel>
+                  <InputLabel>{tCommon('status')}</InputLabel>
                   <Select
                     value={filters.status || ''}
-                    label="Status"
+                    label={tCommon('status')}
                     onChange={(e) =>
                       handleFilterChange('status', e.target.value)
                     }
