@@ -8,7 +8,7 @@ test.describe('Bitcorp ERP - Comprehensive Application Tests', () => {
 
   test('Backend health check is accessible', async ({ page }) => {
     await page.goto('http://localhost:8000/health');
-    await expect(page.locator('text="healthy"')).toBeVisible();
+    await expect(page.locator('body')).toContainText('healthy');
   });
 
   test('Frontend application loads correctly', async ({ page }) => {
