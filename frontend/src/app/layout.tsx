@@ -1,5 +1,7 @@
 import type { Metadata } from 'next';
 import './globals.css';
+import { SWRProvider } from '@/components/providers/SWRProvider';
+import { ThemeProvider } from '@/components/providers/ThemeProvider';
 
 export const metadata: Metadata = {
   title: 'Bitcorp ERP - Civil Works Equipment Management',
@@ -13,7 +15,11 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body>{children}</body>
+      <body>
+        <ThemeProvider>
+          <SWRProvider>{children}</SWRProvider>
+        </ThemeProvider>
+      </body>
     </html>
   );
 }

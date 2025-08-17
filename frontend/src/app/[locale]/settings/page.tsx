@@ -13,6 +13,9 @@ import {
   Card,
   CardContent,
   Divider,
+  Breadcrumbs,
+  Link,
+  IconButton,
 } from '@mui/material';
 import {
   Settings,
@@ -20,16 +23,58 @@ import {
   Security,
   Notifications,
   Computer,
+  ArrowBack as ArrowBackIcon,
+  Home as HomeIcon,
 } from '@mui/icons-material';
 import { AppBarLayout } from '@/components/layout/AppBarLayout';
 import { useTranslations } from 'next-intl';
+import { useRouter } from '@/i18n/navigation';
 
 export default function SettingsPage() {
   const t = useTranslations();
+  const tNav = useTranslations('Navigation');
+  const tCommon = useTranslations('Common');
+  const router = useRouter();
+
+  const handleBackToDashboard = () => {
+    router.push('/dashboard');
+  };
 
   return (
     <AppBarLayout title={t('settings.title')}>
       <Container maxWidth="lg" sx={{ py: 4 }}>
+        {/* Navigation Breadcrumbs */}
+        <Box display="flex" alignItems="center" mb={3}>
+          <IconButton
+            onClick={handleBackToDashboard}
+            sx={{ mr: 2 }}
+            aria-label={tCommon('back')}
+          >
+            <ArrowBackIcon />
+          </IconButton>
+
+          <Breadcrumbs aria-label="breadcrumb">
+            <Link
+              underline="hover"
+              color="inherit"
+              href="/dashboard"
+              onClick={(e) => {
+                e.preventDefault();
+                handleBackToDashboard();
+              }}
+              sx={{
+                display: 'flex',
+                alignItems: 'center',
+                cursor: 'pointer',
+              }}
+            >
+              <HomeIcon sx={{ mr: 0.5 }} fontSize="inherit" />
+              {tNav('dashboard')}
+            </Link>
+            <Typography color="text.primary">{tNav('settings')}</Typography>
+          </Breadcrumbs>
+        </Box>
+
         <Box sx={{ display: 'flex', alignItems: 'center', mb: 4 }}>
           <Settings sx={{ mr: 2, fontSize: 32, color: 'primary.main' }} />
           <Typography variant="h4" component="h1">

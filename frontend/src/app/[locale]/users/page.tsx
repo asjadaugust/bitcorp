@@ -1,7 +1,8 @@
 'use client';
 
 import React, { useState } from 'react';
-import { useRouter } from 'next/navigation';
+import { useRouter } from '@/i18n/navigation';
+import { useTranslations } from 'next-intl';
 import {
   Box,
   Container,
@@ -37,6 +38,7 @@ import {
   Security as SecurityIcon,
   Refresh as RefreshIcon,
 } from '@mui/icons-material';
+import { AppBarLayout } from '@/components/layout/AppBarLayout';
 
 interface User {
   id: number;
@@ -87,6 +89,9 @@ const mockCurrentUser = {
 
 export default function UserManagementPage() {
   const router = useRouter();
+  const t = useTranslations('Users');
+  const tNav = useTranslations('Navigation');
+  const tCommon = useTranslations('Common');
   const currentUser = mockCurrentUser;
 
   // State
@@ -201,255 +206,261 @@ export default function UserManagementPage() {
   const total = mockUsers.length;
 
   return (
-    <Container maxWidth="xl" sx={{ py: 4 }}>
-      <Box>
-        {/* Navigation Breadcrumbs */}
-        <Box display="flex" alignItems="center" mb={3}>
-          <IconButton
-            onClick={handleBackToDashboard}
-            sx={{ mr: 2 }}
-            aria-label="Back to dashboard"
-          >
-            <ArrowBackIcon />
-          </IconButton>
-
-          <Breadcrumbs aria-label="breadcrumb">
-            <Link
-              underline="hover"
-              color="inherit"
-              href="/dashboard"
-              onClick={(e) => {
-                e.preventDefault();
-                handleBackToDashboard();
-              }}
-              sx={{ display: 'flex', alignItems: 'center', cursor: 'pointer' }}
+    <AppBarLayout title={t('title')} subtitle={t('subtitle')}>
+      <Container maxWidth="xl" sx={{ py: 4 }}>
+        <Box>
+          {/* Navigation Breadcrumbs */}
+          <Box display="flex" alignItems="center" mb={3}>
+            <IconButton
+              onClick={handleBackToDashboard}
+              sx={{ mr: 2 }}
+              aria-label={tCommon('back')}
             >
-              <HomeIcon sx={{ mr: 0.5 }} fontSize="inherit" />
-              Dashboard
-            </Link>
-            <Typography color="text.primary">User Management</Typography>
-          </Breadcrumbs>
-        </Box>
+              <ArrowBackIcon />
+            </IconButton>
 
-        {/* Page Header */}
-        <Box sx={{ mb: 4 }}>
-          <Box
-            display="flex"
-            alignItems="center"
-            justifyContent="space-between"
-            mb={2}
-          >
-            <Box display="flex" alignItems="center" gap={2}>
-              <PeopleIcon sx={{ fontSize: 40, color: 'primary.main' }} />
-              <Box>
-                <Typography variant="h3" component="h1" gutterBottom>
-                  User Management
-                </Typography>
-                <Typography variant="subtitle1" color="text.secondary">
-                  Manage users, roles, and permissions
-                </Typography>
+            <Breadcrumbs aria-label="breadcrumb">
+              <Link
+                underline="hover"
+                color="inherit"
+                href="/dashboard"
+                onClick={(e) => {
+                  e.preventDefault();
+                  handleBackToDashboard();
+                }}
+                sx={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  cursor: 'pointer',
+                }}
+              >
+                <HomeIcon sx={{ mr: 0.5 }} fontSize="inherit" />
+                {tNav('dashboard')}
+              </Link>
+              <Typography color="text.primary">{tNav('users')}</Typography>
+            </Breadcrumbs>
+          </Box>
+
+          {/* Page Header */}
+          <Box sx={{ mb: 4 }}>
+            <Box
+              display="flex"
+              alignItems="center"
+              justifyContent="space-between"
+              mb={2}
+            >
+              <Box display="flex" alignItems="center" gap={2}>
+                <PeopleIcon sx={{ fontSize: 40, color: 'primary.main' }} />
+                <Box>
+                  <Typography variant="h3" component="h1" gutterBottom>
+                    {t('title')}
+                  </Typography>
+                  <Typography variant="subtitle1" color="text.secondary">
+                    {t('subtitle')}
+                  </Typography>
+                </Box>
               </Box>
+
+              {canCreateUsers && (
+                <Button
+                  variant="contained"
+                  startIcon={<PersonAddIcon />}
+                  sx={{ height: 'fit-content' }}
+                >
+                  Add User
+                </Button>
+              )}
             </Box>
 
-            {canCreateUsers && (
-              <Button
-                variant="contained"
-                startIcon={<PersonAddIcon />}
-                sx={{ height: 'fit-content' }}
-              >
-                Add User
+            {/* Stats Cards */}
+            <Grid container spacing={3} sx={{ mb: 3 }}>
+              <Grid item xs={12} sm={6} md={3}>
+                <Card>
+                  <CardContent>
+                    <Typography variant="h6" color="primary.main" gutterBottom>
+                      Total Users
+                    </Typography>
+                    <Typography variant="h3">{total}</Typography>
+                    <Typography variant="body2" color="text.secondary">
+                      All registered users
+                    </Typography>
+                  </CardContent>
+                </Card>
+              </Grid>
+              <Grid item xs={12} sm={6} md={3}>
+                <Card>
+                  <CardContent>
+                    <Typography variant="h6" color="success.main" gutterBottom>
+                      Active Users
+                    </Typography>
+                    <Typography variant="h3">
+                      {users.filter((u: User) => u.is_active).length}
+                    </Typography>
+                    <Typography variant="body2" color="text.secondary">
+                      Currently active users
+                    </Typography>
+                  </CardContent>
+                </Card>
+              </Grid>
+              <Grid item xs={12} sm={6} md={3}>
+                <Card>
+                  <CardContent>
+                    <Typography variant="h6" color="info.main" gutterBottom>
+                      Operators
+                    </Typography>
+                    <Typography variant="h3">
+                      {
+                        users.filter((u: User) =>
+                          u.roles.some((r: Role) => r.name === 'operator')
+                        ).length
+                      }
+                    </Typography>
+                    <Typography variant="body2" color="text.secondary">
+                      Field operators
+                    </Typography>
+                  </CardContent>
+                </Card>
+              </Grid>
+              <Grid item xs={12} sm={6} md={3}>
+                <Card>
+                  <CardContent>
+                    <Typography variant="h6" color="warning.main" gutterBottom>
+                      Admins
+                    </Typography>
+                    <Typography variant="h3">
+                      {
+                        users.filter((u: User) =>
+                          u.roles.some((r: Role) => r.name === 'admin')
+                        ).length
+                      }
+                    </Typography>
+                    <Typography variant="body2" color="text.secondary">
+                      System administrators
+                    </Typography>
+                  </CardContent>
+                </Card>
+              </Grid>
+            </Grid>
+
+            {/* Filters */}
+            <Box display="flex" gap={2} mb={3} flexWrap="wrap">
+              <TextField
+                placeholder="Search users..."
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                InputProps={{
+                  startAdornment: (
+                    <InputAdornment position="start">
+                      <SearchIcon />
+                    </InputAdornment>
+                  ),
+                }}
+                sx={{ minWidth: 300 }}
+              />
+
+              <Button variant="outlined" startIcon={<RefreshIcon />}>
+                Refresh
               </Button>
-            )}
+            </Box>
           </Box>
 
-          {/* Stats Cards */}
-          <Grid container spacing={3} sx={{ mb: 3 }}>
-            <Grid item xs={12} sm={6} md={3}>
-              <Card>
-                <CardContent>
-                  <Typography variant="h6" color="primary.main" gutterBottom>
-                    Total Users
-                  </Typography>
-                  <Typography variant="h3">{total}</Typography>
-                  <Typography variant="body2" color="text.secondary">
-                    All registered users
-                  </Typography>
-                </CardContent>
-              </Card>
-            </Grid>
-            <Grid item xs={12} sm={6} md={3}>
-              <Card>
-                <CardContent>
-                  <Typography variant="h6" color="success.main" gutterBottom>
-                    Active Users
-                  </Typography>
-                  <Typography variant="h3">
-                    {users.filter((u: User) => u.is_active).length}
-                  </Typography>
-                  <Typography variant="body2" color="text.secondary">
-                    Currently active users
-                  </Typography>
-                </CardContent>
-              </Card>
-            </Grid>
-            <Grid item xs={12} sm={6} md={3}>
-              <Card>
-                <CardContent>
-                  <Typography variant="h6" color="info.main" gutterBottom>
-                    Operators
-                  </Typography>
-                  <Typography variant="h3">
-                    {
-                      users.filter((u: User) =>
-                        u.roles.some((r: Role) => r.name === 'operator')
-                      ).length
-                    }
-                  </Typography>
-                  <Typography variant="body2" color="text.secondary">
-                    Field operators
-                  </Typography>
-                </CardContent>
-              </Card>
-            </Grid>
-            <Grid item xs={12} sm={6} md={3}>
-              <Card>
-                <CardContent>
-                  <Typography variant="h6" color="warning.main" gutterBottom>
-                    Admins
-                  </Typography>
-                  <Typography variant="h3">
-                    {
-                      users.filter((u: User) =>
-                        u.roles.some((r: Role) => r.name === 'admin')
-                      ).length
-                    }
-                  </Typography>
-                  <Typography variant="body2" color="text.secondary">
-                    System administrators
-                  </Typography>
-                </CardContent>
-              </Card>
-            </Grid>
-          </Grid>
-
-          {/* Filters */}
-          <Box display="flex" gap={2} mb={3} flexWrap="wrap">
-            <TextField
-              placeholder="Search users..."
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              InputProps={{
-                startAdornment: (
-                  <InputAdornment position="start">
-                    <SearchIcon />
-                  </InputAdornment>
-                ),
-              }}
-              sx={{ minWidth: 300 }}
-            />
-
-            <Button variant="outlined" startIcon={<RefreshIcon />}>
-              Refresh
-            </Button>
-          </Box>
-        </Box>
-
-        {/* Users Table */}
-        <Paper>
-          <TableContainer>
-            <Table>
-              <TableHead>
-                <TableRow>
-                  <TableCell>User</TableCell>
-                  <TableCell>Email</TableCell>
-                  <TableCell>Roles</TableCell>
-                  <TableCell>Status</TableCell>
-                  <TableCell>Last Login</TableCell>
-                  <TableCell>Actions</TableCell>
-                </TableRow>
-              </TableHead>
-              <TableBody>
-                {users.length === 0 ? (
+          {/* Users Table */}
+          <Paper>
+            <TableContainer>
+              <Table>
+                <TableHead>
                   <TableRow>
-                    <TableCell colSpan={6} align="center">
-                      No users found
-                    </TableCell>
+                    <TableCell>User</TableCell>
+                    <TableCell>Email</TableCell>
+                    <TableCell>Roles</TableCell>
+                    <TableCell>Status</TableCell>
+                    <TableCell>Last Login</TableCell>
+                    <TableCell>Actions</TableCell>
                   </TableRow>
-                ) : (
-                  users.map((user: User) => (
-                    <TableRow key={user.id}>
-                      <TableCell>
-                        <Box>
-                          <Typography variant="subtitle2">
-                            {user.full_name}
-                          </Typography>
-                          <Typography variant="body2" color="text.secondary">
-                            @{user.username}
-                          </Typography>
-                        </Box>
-                      </TableCell>
-                      <TableCell>{user.email}</TableCell>
-                      <TableCell>
-                        <Box display="flex" gap={0.5} flexWrap="wrap">
-                          {user.roles.map((role: Role) => (
-                            <Chip
-                              key={role.id}
-                              label={role.name}
-                              size="small"
-                              color={getRoleColor(role.name)}
-                            />
-                          ))}
-                        </Box>
-                      </TableCell>
-                      <TableCell>
-                        <Chip
-                          label={user.is_active ? 'Active' : 'Inactive'}
-                          color={user.is_active ? 'success' : 'default'}
-                          size="small"
-                        />
-                      </TableCell>
-                      <TableCell>
-                        {user.last_login
-                          ? new Date(user.last_login).toLocaleDateString()
-                          : 'Never'}
-                      </TableCell>
-                      <TableCell>
-                        <Box display="flex" gap={1}>
-                          <IconButton size="small" title="Edit user">
-                            <EditIcon />
-                          </IconButton>
-                          <IconButton size="small" title="Manage roles">
-                            <SecurityIcon />
-                          </IconButton>
-                          {canCreateUsers && user.id !== currentUser?.id && (
-                            <IconButton
-                              size="small"
-                              title="Delete user"
-                              color="error"
-                            >
-                              <DeleteIcon />
-                            </IconButton>
-                          )}
-                        </Box>
+                </TableHead>
+                <TableBody>
+                  {users.length === 0 ? (
+                    <TableRow>
+                      <TableCell colSpan={6} align="center">
+                        No users found
                       </TableCell>
                     </TableRow>
-                  ))
-                )}
-              </TableBody>
-            </Table>
-          </TableContainer>
+                  ) : (
+                    users.map((user: User) => (
+                      <TableRow key={user.id}>
+                        <TableCell>
+                          <Box>
+                            <Typography variant="subtitle2">
+                              {user.full_name}
+                            </Typography>
+                            <Typography variant="body2" color="text.secondary">
+                              @{user.username}
+                            </Typography>
+                          </Box>
+                        </TableCell>
+                        <TableCell>{user.email}</TableCell>
+                        <TableCell>
+                          <Box display="flex" gap={0.5} flexWrap="wrap">
+                            {user.roles.map((role: Role) => (
+                              <Chip
+                                key={role.id}
+                                label={role.name}
+                                size="small"
+                                color={getRoleColor(role.name)}
+                              />
+                            ))}
+                          </Box>
+                        </TableCell>
+                        <TableCell>
+                          <Chip
+                            label={user.is_active ? 'Active' : 'Inactive'}
+                            color={user.is_active ? 'success' : 'default'}
+                            size="small"
+                          />
+                        </TableCell>
+                        <TableCell>
+                          {user.last_login
+                            ? new Date(user.last_login).toLocaleDateString()
+                            : 'Never'}
+                        </TableCell>
+                        <TableCell>
+                          <Box display="flex" gap={1}>
+                            <IconButton size="small" title="Edit user">
+                              <EditIcon />
+                            </IconButton>
+                            <IconButton size="small" title="Manage roles">
+                              <SecurityIcon />
+                            </IconButton>
+                            {canCreateUsers && user.id !== currentUser?.id && (
+                              <IconButton
+                                size="small"
+                                title="Delete user"
+                                color="error"
+                              >
+                                <DeleteIcon />
+                              </IconButton>
+                            )}
+                          </Box>
+                        </TableCell>
+                      </TableRow>
+                    ))
+                  )}
+                </TableBody>
+              </Table>
+            </TableContainer>
 
-          <TablePagination
-            rowsPerPageOptions={[5, 10, 25, 50]}
-            component="div"
-            count={total}
-            rowsPerPage={rowsPerPage}
-            page={page}
-            onPageChange={handleChangePage}
-            onRowsPerPageChange={handleChangeRowsPerPage}
-          />
-        </Paper>
-      </Box>
-    </Container>
+            <TablePagination
+              rowsPerPageOptions={[5, 10, 25, 50]}
+              component="div"
+              count={total}
+              rowsPerPage={rowsPerPage}
+              page={page}
+              onPageChange={handleChangePage}
+              onRowsPerPageChange={handleChangeRowsPerPage}
+            />
+          </Paper>
+        </Box>
+      </Container>
+    </AppBarLayout>
   );
 }
