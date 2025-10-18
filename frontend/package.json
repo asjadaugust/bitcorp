@@ -9,5 +9,10 @@
     "lint": "npx next lint",
     "type-check": "npx tsc -p . --noEmit",
     "test": "npx playwright test"
+  },
+  "devDependencies": {
+    "typescript": "^5.5.0",
+    "@types/node": "^20.10.0",
+    "@types/react": "^18.2.0"
   }
 }
