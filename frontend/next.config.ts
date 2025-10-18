@@ -19,4 +19,5 @@ const nextConfig: NextConfig = {
   },
 };
 
-export default withNextIntl(nextConfig);
+// Type assertion to avoid Next.js version conflicts
+export default withNextIntl(nextConfig) as NextConfig;
