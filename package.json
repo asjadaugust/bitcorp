@@ -12,7 +12,7 @@
     "build": "cd frontend && npm run build",
     "lint": "cd frontend && npm run lint",
     "test": "cd frontend && npm run test",
-    "prepare": "husky"
+    "prepare": "[ -x ./node_modules/.bin/husky ] && ./node_modules/.bin/husky install || echo 'husky not installed, skipping prepare'"
   },
   "devDependencies": {
     "concurrently": "^8.0.0",
