@@ -227,4 +227,22 @@ test.describe('Bitcorp ERP - Smoke Tests', () => {
     await page.goto(`${baseUrl}/en/dashboard`);
     await expect(page.getByText('Dashboard')).toBeVisible();
   });
+
+  // Keep simple navigation and responsive checks from other branch as additional smoke tests
+  test('basic navigation should work', async ({ page }) => {
+    await page.goto(`${baseUrl}/en`);
+
+    // Should have navigation elements
+    await expect(page.locator('nav, header, .navigation')).toBeVisible();
+  });
+
+  test('responsive design should work on mobile', async ({ page }) => {
+    // Set mobile viewport
+    await page.setViewportSize({ width: 375, height: 667 });
+
+    await page.goto(baseUrl);
+
+    // Check that page loads properly on mobile
+    await expect(page).toHaveTitle(/BitCorp/i);
+  });
 });
