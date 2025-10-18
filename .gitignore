@@ -142,8 +142,7 @@ frontend/playwright-report/*.png
 frontend/playwright-report/*.json
 frontend/playwright-report/**
 node_modules/
-package-lock.json
-package-lock.json.*
+# Note: package-lock.json should be committed for consistent builds
 npm-debug.log*
 yarn-error.log*
 pnpm-lock.yaml
