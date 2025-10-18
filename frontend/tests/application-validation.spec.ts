@@ -14,7 +14,7 @@ test.describe('Bitcorp ERP - Comprehensive Application Tests', () => {
   test('Frontend application loads correctly', async ({ page }) => {
     await page.goto('http://localhost:3001/en');
     await page.waitForLoadState('networkidle');
-    
+
     // Check page title
     await expect(page).toHaveTitle(/Bitcorp ERP/);
   });
@@ -25,9 +25,11 @@ test.describe('Bitcorp ERP - Comprehensive Application Tests', () => {
 
     // Check for login form elements
     await expect(page.getByRole('textbox', { name: /email/i })).toBeVisible();
-    await expect(page.getByRole('textbox', { name: /password/i })).toBeVisible();
+    await expect(
+      page.getByRole('textbox', { name: /password/i })
+    ).toBeVisible();
     await expect(page.getByRole('button', { name: /sign in/i })).toBeVisible();
-    
+
     // Check demo credentials are shown
     await expect(page.getByText(/Demo Credentials/)).toBeVisible();
     await expect(page.getByText(/admin@bitcorp.com/)).toBeVisible();
@@ -39,7 +41,7 @@ test.describe('Bitcorp ERP - Comprehensive Application Tests', () => {
 
     // Page should load successfully (might redirect to login)
     const currentURL = page.url();
-    
+
     if (currentURL.includes('/login')) {
       // If redirected to login, that's expected behavior
       await expect(page.getByRole('textbox', { name: /email/i })).toBeVisible();
@@ -56,7 +58,7 @@ test.describe('Bitcorp ERP - Comprehensive Application Tests', () => {
     // Should show operator interface or redirect
     const currentURL = page.url();
     expect(currentURL).toMatch(/(operator|login)/);
-    
+
     if (currentURL.includes('/operator')) {
       await expect(page.getByText(/operator/i).first()).toBeVisible();
     }
@@ -84,14 +86,14 @@ test.describe('Bitcorp ERP - Comprehensive Application Tests', () => {
   test('Navigation and layout consistency', async ({ page }) => {
     // Test main pages for consistent layout
     const pages = ['/equipment', '/operator', '/reports', '/users'];
-    
+
     for (const pagePath of pages) {
       await page.goto(`http://localhost:3001/en${pagePath}`);
       await page.waitForLoadState('networkidle');
-      
+
       // Check current URL (might redirect to login)
       const currentURL = page.url();
-      
+
       if (!currentURL.includes('/login')) {
         // If not redirected to login, check for consistent layout elements
         // This would include AppBar, navigation, etc.
@@ -103,10 +105,10 @@ test.describe('Bitcorp ERP - Comprehensive Application Tests', () => {
   test('Mobile responsiveness check', async ({ page }) => {
     // Set mobile viewport
     await page.setViewportSize({ width: 375, height: 667 });
-    
+
     await page.goto('http://localhost:3001/en/operator');
     await page.waitForLoadState('networkidle');
-    
+
     // Mobile operator interface should be accessible
     const currentURL = page.url();
     expect(currentURL).toMatch(/(operator|login)/);
@@ -115,7 +117,7 @@ test.describe('Bitcorp ERP - Comprehensive Application Tests', () => {
   test('Language selector functionality', async ({ page }) => {
     await page.goto('http://localhost:3001/en/equipment');
     await page.waitForLoadState('networkidle');
-    
+
     // If on equipment page (not redirected), check for language selector
     const currentURL = page.url();
     if (!currentURL.includes('/login')) {
@@ -127,7 +129,7 @@ test.describe('Bitcorp ERP - Comprehensive Application Tests', () => {
   test('Error handling and 404 pages', async ({ page }) => {
     await page.goto('http://localhost:3001/en/nonexistent-page');
     await page.waitForLoadState('networkidle');
-    
+
     // Should show either 404 page or redirect appropriately
     // Test passes if page loads without crashing
   });

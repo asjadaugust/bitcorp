@@ -7,7 +7,7 @@ set -e
 
 SERVER="mohammad@mohammadasjad.com"
 PORT="2230"
-REMOTE_DIR="/volume1/docker/bitcorp"
+REMOTE_DIR="~/bitcorp-erp"
 LOCAL_DIR="."
 
 echo "🚀 Bitcorp ERP - Remote Deployment to Synology NAS"
@@ -59,7 +59,7 @@ echo ""
 # Extract and deploy on remote server
 echo "🔨 Deploying on remote server..."
 ssh -p $PORT $SERVER << 'ENDSSH'
-cd /volume1/docker/bitcorp
+cd ~/bitcorp-erp
 tar xzf bitcorp-deploy.tar.gz
 cd bitcorp
 
@@ -104,7 +104,7 @@ if [ $? -eq 0 ]; then
     echo "   pgAdmin:   http://mohammadasjad.com:30002"
     echo ""
     echo "📝 To view logs:"
-    echo "   ssh -p $PORT $SERVER 'cd $REMOTE_DIR/bitcorp && docker-compose -f docker-compose.prod.yml logs -f'"
+    echo "   ssh -p $PORT $SERVER 'cd ~/bitcorp-erp/bitcorp && docker-compose -f docker-compose.prod.yml logs -f'"
     echo ""
 else
     echo ""

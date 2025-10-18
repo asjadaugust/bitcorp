@@ -68,7 +68,7 @@ services:
       redis:
         condition: service_healthy
     ports:
-      - "${BACKEND_PORT:-8000}:8000"
+      - "${BACKEND_PORT:-20080}:8000"  # Changed default to 20080 for Synology
     volumes:
       - upload_data:/app/uploads
     healthcheck:
@@ -98,7 +98,7 @@ services:
       backend:
         condition: service_healthy
     ports:
-      - "${FRONTEND_PORT:-3000}:3000"
+      - "${FRONTEND_PORT:-20081}:3000"  # Changed default to 20081 for Synology
     healthcheck:
       test: ["CMD", "wget", "--spider", "-q", "http://localhost:3000"]
       interval: 30s

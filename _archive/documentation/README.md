@@ -1,217 +1,110 @@
-# Bitcorp ERP - Civil Construction Equipment Management System# Bitcorp ERP - Civil Works Equipment Management System
+# Bitcorp ERP - Civil Works Equipment Management System
 
-
-
-A modern, full-stack ERP system designed for civil construction companies to manage equipment, operators, daily reports, and operations efficiently.[![Python](https://img.shields.io/badge/Python-3.11.5-blue.svg)](https://python.org)
-
+[![Python](https://img.shields.io/badge/Python-3.11.5-blue.svg)](https://python.org)
 [![FastAPI](https://img.shields.io/badge/FastAPI-0.104.1-green.svg)](https://fastapi.tiangolo.com)
-
-## 🚀 Quick Start[![Next.js](https://img.shields.io/badge/Next.js-15.x-black.svg)](https://nextjs.org)
-
+[![Next.js](https://img.shields.io/badge/Next.js-15.x-black.svg)](https://nextjs.org)
 [![PostgreSQL](https://img.shields.io/badge/PostgreSQL-15-blue.svg)](https://postgresql.org)
+[![Redis](https://img.shields.io/badge/Redis-7-red.svg)](https://redis.io)
+[![TypeScript](https://img.shields.io/badge/TypeScript-5.x-blue.svg)](https://typescriptlang.org)
+[![Material-UI](https://img.shields.io/badge/Material--UI-7.x-blue.svg)](https://mui.com)
 
-### Prerequisites[![Redis](https://img.shields.io/badge/Redis-7-red.svg)](https://redis.io)
+## 🎉 Latest Achievement: Architecture Restructured Following Propuesta.md!
 
-- Docker & Docker Compose[![TypeScript](https://img.shields.io/badge/TypeScript-5.x-blue.svg)](https://typescriptlang.org)
-
-- Git[![Material-UI](https://img.shields.io/badge/Material--UI-7.x-blue.svg)](https://mui.com)
-
-
-
-### Local Development## 🎉 Latest Achievement: Architecture Restructured Following Propuesta.md!
-
-```bash
-
-# Start all services**� New Folder Structure Implemented - Simplified Deployment!**
-
-docker-compose up -d
+**� New Folder Structure Implemented - Simplified Deployment!**
 
 ✅ **Propuesta.md Compliance** - Project structure now follows architectural specifications  
+✅ **Single Command Deployment** - `docker-compose up` from root directory  
+✅ **Organized Applications** - Apps separated into web and mobile directories  
+✅ **Configuration Centralized** - All config files in dedicated directory  
 
-# Access the application✅ **Single Command Deployment** - `docker-compose up` from root directory  
-
-# Frontend: http://localhost:3000✅ **Organized Applications** - Apps separated into web and mobile directories  
-
-# Backend API: http://localhost:8000✅ **Configuration Centralized** - All config files in dedicated directory  
-
-# API Docs: http://localhost:8000/docs
-
-# pgAdmin: http://localhost:5050**🚀 Start Now**: `docker-compose up` (from project root)  
-
-```**📁 Apps Location**: `bitcorp/apps-web/erp-main/` for backend & frontend  
-
+**🚀 Start Now**: `docker-compose up` (from project root)  
+**📁 Apps Location**: `bitcorp/apps-web/erp-main/` for backend & frontend  
 **📚 Documentation**: See project structure below  
 
-### Production Deployment (via GitHub Actions)
+---
 
-1. Fork this repository---
+A comprehensive Enterprise Resource Planning (ERP) system specifically designed for civil engineering and construction companies. This modern solution provides complete equipment lifecycle management, from procurement to disposal, with advanced analytics, real-time monitoring, and professional-grade code quality enforcement.
 
-2. Configure GitHub Secrets (see [Deployment Guide](_archive/documentation/DEPLOYMENT_MANUAL.md))
+## 🚀 Quick Start (New Simplified Process)
 
-3. Push to `main` branch - automatic deployment to Synology NASA comprehensive Enterprise Resource Planning (ERP) system specifically designed for civil engineering and construction companies. This modern solution provides complete equipment lifecycle management, from procurement to disposal, with advanced analytics, real-time monitoring, and professional-grade code quality enforcement.
+**Single Command Deployment:**
+```bash
+docker-compose up
+```
 
+This starts all services:
+- 📊 PostgreSQL database (port 5433)
+- 🔴 Redis cache (port 6379)  
+- ⚡ FastAPI backend (port 8000)
+- 🌐 Next.js frontend (port 3000)
+- 🛠️ pgAdmin (port 5050)
 
+## 📁 New Project Structure (Following Propuesta.md)
 
-## 📁 Project Structure## 🚀 Quick Start (New Simplified Process)
-
-
-
-```**Single Command Deployment:**
-
-bitcorp/```bash
-
-├── backend/              # FastAPI backend applicationdocker-compose up
-
-├── frontend/             # Next.js frontend application```
-
-├── docker/              # Production Dockerfiles
-
-├── kubernetes/          # K8s deployment configs (optional)This starts all services:
-
-├── scripts/             # Development scripts- 📊 PostgreSQL database (port 5433)
-
-├── docs/                # Technical documentation- 🔴 Redis cache (port 6379)  
-
-├── _archive/            # Historical documentation and legacy code- ⚡ FastAPI backend (port 8000)
-
-│   ├── documentation/   # All markdown docs- 🌐 Next.js frontend (port 3000)
-
-│   ├── deployment/      # Deployment scripts- 🛠️ pgAdmin (port 5050)
-
-│   ├── legacy/          # Old code versions
-
-│   └── temp/           # Temporary files## 📁 New Project Structure (Following Propuesta.md)
-
-└── .github/            # GitHub Actions workflows
-
-``````
-
+```
 BITCORP/                             # Project root
-
-## 🛠️ Tech Stack├── bitcorp/                         # Main application folder
-
+├── bitcorp/                         # Main application folder
 │   ├── apps-web/                    # Web applications
-
-- **Frontend**: Next.js 15.3.5, TypeScript, Material-UI, SWR│   │   └── erp-main/                # Main ERP application
-
-- **Backend**: FastAPI, Python 3.11, SQLAlchemy, Alembic│   │       ├── backend/             # FastAPI backend
-
-- **Database**: PostgreSQL 15+│   │       └── frontend/            # Next.js frontend
-
-- **Cache**: Redis 7│   ├── apps-movil/                  # Mobile applications (future)
-
-- **Deployment**: Docker, Docker Compose, GitHub Actions│   ├── backend-framework-core/      # Core backend frameworks
-
+│   │   └── erp-main/                # Main ERP application
+│   │       ├── backend/             # FastAPI backend
+│   │       └── frontend/            # Next.js frontend
+│   ├── apps-movil/                  # Mobile applications (future)
+│   ├── backend-framework-core/      # Core backend frameworks
 │   ├── config/                      # Configuration files & scripts
-
-## 📚 Key Features│   └── doc/                         # Documentation
-
+│   └── doc/                         # Documentation
 ├── runtime-python/                  # Python runtime environment
-
-- Equipment tracking and management├── external_libs/                   # External libraries
-
-- Daily operator reports (mobile-optimized)│   └── node/                       # Node.js dependencies
-
-- User management and authentication (JWT)├── deploy/                         # Deployment configurations
-
-- IoT device monitoring│   └── docker/                     # Docker configurations
-
-- Analytics and reporting├── kubernetes/                     # Kubernetes configurations
-
-- Internationalization (English/Spanish)│   └── init-scripts/              # Database initialization
-
-- Real-time notifications├── docker-compose.yml             # Single-command deployment
-
+├── external_libs/                   # External libraries
+│   └── node/                       # Node.js dependencies
+├── deploy/                         # Deployment configurations
+│   └── docker/                     # Docker configurations
+├── kubernetes/                     # Kubernetes configurations
+│   └── init-scripts/              # Database initialization
+├── docker-compose.yml             # Single-command deployment
 └── .envrc                         # Development environment
+```
 
-## 🧪 Testing```
+## 🎯 Project Overview
 
+Bitcorp ERP transforms how construction companies manage their equipment assets by providing a centralized platform that combines operational efficiency with data-driven decision making. Our system addresses the unique challenges of the construction industry where equipment represents significant capital investment and operational efficiency directly impacts profitability.
 
-
-```bash## 🎯 Project Overview
-
-# Backend tests
-
-cd backend && pytestBitcorp ERP transforms how construction companies manage their equipment assets by providing a centralized platform that combines operational efficiency with data-driven decision making. Our system addresses the unique challenges of the construction industry where equipment represents significant capital investment and operational efficiency directly impacts profitability.
-
-
-
-# Frontend tests### Key Business Benefits
-
-cd frontend && npm run test- **Centralized Equipment Management**: Single source of truth for all equipment data, eliminating information silos
-
+### Key Business Benefits
+- **Centralized Equipment Management**: Single source of truth for all equipment data, eliminating information silos
 - **Operational Efficiency**: Streamlined workflows that reduce administrative overhead by 40-60%
+- **Cost Optimization**: Detailed tracking leads to 15-25% reduction in equipment-related costs
+- **Compliance Management**: Built-in regulatory compliance and safety standard enforcement
+- **Predictive Analytics**: AI-powered insights prevent costly equipment failures and optimize utilization
 
-# E2E tests- **Cost Optimization**: Detailed tracking leads to 15-25% reduction in equipment-related costs
-
-cd frontend && npm run test:e2e- **Compliance Management**: Built-in regulatory compliance and safety standard enforcement
-
-```- **Predictive Analytics**: AI-powered insights prevent costly equipment failures and optimize utilization
-
-
-
-## 📖 Documentation### Target Users
-
+### Target Users
 - **Construction Companies**: General contractors, specialized contractors, heavy civil construction
-
-All comprehensive documentation has been moved to `_archive/documentation/`:- **Equipment Rental Companies**: Fleet management and utilization optimization
-
-- [Production Best Practices](_archive/documentation/BITCORP_ERP_PRODUCTION_BEST_PRACTICES.md)- **Infrastructure Developers**: Long-term asset management for infrastructure projects
-
-- [Deployment Manual](_archive/documentation/DEPLOYMENT_MANUAL.md)- **Mining Operations**: Heavy equipment tracking and maintenance scheduling
-
-- [Implementation Status](_archive/documentation/FINAL_IMPLEMENTATION_STATUS.md)- **Government Agencies**: Public works equipment management and compliance reporting
-
-- [Quick Start Guide](_archive/documentation/QUICK_START.md)
+- **Equipment Rental Companies**: Fleet management and utilization optimization
+- **Infrastructure Developers**: Long-term asset management for infrastructure projects
+- **Mining Operations**: Heavy equipment tracking and maintenance scheduling
+- **Government Agencies**: Public works equipment management and compliance reporting
 
 ## 🚀 Quick Start
 
-## 🔐 Security
-
 ### Prerequisites
+- Python 3.11.0+ with [pyenv](https://github.com/pyenv/pyenv)
+- [direnv](https://direnv.net/) for environment management
+- [Docker](https://docker.com) for services
+- Node.js 18+ for frontend
 
-- JWT-based authentication- Python 3.11.0+ with [pyenv](https://github.com/pyenv/pyenv)
+### Platform-Specific Setup
 
-- Role-based access control (RBAC)- [direnv](https://direnv.net/) for environment management
+#### macOS/Linux (Recommended)
 
-- HTTPS/TLS encryption- [Docker](https://docker.com) for services
+```bash
+# Clone and navigate to project
+git clone <repository-url>
+cd bitcorp
 
-- Rate limiting- Node.js 18+ for frontend
-
-- CORS configuration
-
-- Environment-based secrets### Platform-Specific Setup
-
-
-
-## 🤝 Contributing#### macOS/Linux (Recommended)
-
-
-
-1. Create a feature branch```bash
-
-2. Make your changes# Clone and navigate to project
-
-3. Run testsgit clone <repository-url>
-
-4. Submit a pull requestcd bitcorp
-
-
-
-## 📄 License# Environment auto-activates with direnv!
-
+# Environment auto-activates with direnv!
 # Run setup script
+./scripts/dev.sh setup
 
-Proprietary - © 2025 Bitcorp./scripts/dev.sh setup
-
-
-
-## 🆘 Support# Start all services
-
+# Start all services
 ./scripts/dev.sh start
-
-For issues and support, please contact the development team or create an issue in the repository.```
-
+```
 
 #### Windows
 

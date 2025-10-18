@@ -1,0 +1,160 @@
+name: Deploy to Synology NAS
+
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+
+env:
+  REGISTRY: ghcr.io
+  IMAGE_PREFIX: ${{ github.repository }}
+
+jobs:
+  build-and-push:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+    
+    strategy:
+      matrix:
+        service: [backend, frontend]
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Log in to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Extract metadata
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ env.REGISTRY }}/${{ env.IMAGE_PREFIX }}-${{ matrix.service }}
+          tags: |
+            type=ref,event=branch
+            type=sha,prefix={{branch}}-
+            type=raw,value=latest,enable={{is_default_branch}}
+
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v5
+        with:
+          context: ./${{ matrix.service }}
+          file: ./docker/${{ matrix.service }}/Dockerfile.prod
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          cache-from: type=registry,ref=${{ env.REGISTRY }}/${{ env.IMAGE_PREFIX }}-${{ matrix.service }}:buildcache
+          cache-to: type=registry,ref=${{ env.REGISTRY }}/${{ env.IMAGE_PREFIX }}-${{ matrix.service }}:buildcache,mode=max
+
+  deploy:
+    needs: build-and-push
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Create deployment package
+        run: |
+          mkdir -p deploy-package
+          cp docker-compose.prod.yml deploy-package/
+          cp .env.production.example deploy-package/.env.production
+          
+          # Update image references in docker-compose
+          sed -i "s|build:|#build:|g" deploy-package/docker-compose.prod.yml
+          sed -i "s|context:|#context:|g" deploy-package/docker-compose.prod.yml
+          sed -i "s|dockerfile:|#dockerfile:|g" deploy-package/docker-compose.prod.yml
+          sed -i "s|container_name: bitcorp-backend|image: ${{ env.REGISTRY }}/${{ env.IMAGE_PREFIX }}-backend:latest\n    container_name: bitcorp-backend|g" deploy-package/docker-compose.prod.yml
+          sed -i "s|container_name: bitcorp-frontend|image: ${{ env.REGISTRY }}/${{ env.IMAGE_PREFIX }}-frontend:latest\n    container_name: bitcorp-frontend|g" deploy-package/docker-compose.prod.yml
+
+      - name: Setup SSH key
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.SYNOLOGY_SSH_KEY }}" > ~/.ssh/id_rsa
+          chmod 600 ~/.ssh/id_rsa
+          ssh-keyscan -p ${{ secrets.SYNOLOGY_SSH_PORT }} ${{ secrets.SYNOLOGY_HOST }} >> ~/.ssh/known_hosts
+
+      - name: Deploy to Synology NAS
+        env:
+          SYNOLOGY_USER: ${{ secrets.SYNOLOGY_USER }}
+          SYNOLOGY_HOST: ${{ secrets.SYNOLOGY_HOST }}
+          SYNOLOGY_PORT: ${{ secrets.SYNOLOGY_SSH_PORT }}
+          SYNOLOGY_DEPLOY_PATH: ${{ secrets.SYNOLOGY_DEPLOY_PATH }}
+        run: |
+          # Create deployment directory on remote
+          ssh -p $SYNOLOGY_PORT $SYNOLOGY_USER@$SYNOLOGY_HOST "mkdir -p $SYNOLOGY_DEPLOY_PATH"
+          
+          # Copy deployment package
+          scp -P $SYNOLOGY_PORT -r deploy-package/* $SYNOLOGY_USER@$SYNOLOGY_HOST:$SYNOLOGY_DEPLOY_PATH/
+          
+          # Deploy on remote server
+          ssh -p $SYNOLOGY_PORT $SYNOLOGY_USER@$SYNOLOGY_HOST << 'ENDSSH'
+            cd ${{ secrets.SYNOLOGY_DEPLOY_PATH }}
+            
+            # Set environment variables
+            export POSTGRES_PASSWORD="${{ secrets.POSTGRES_PASSWORD }}"
+            export REDIS_PASSWORD="${{ secrets.REDIS_PASSWORD }}"
+            export SECRET_KEY="${{ secrets.JWT_SECRET_KEY }}"
+            export NEXT_PUBLIC_API_URL="${{ secrets.NEXT_PUBLIC_API_URL }}"
+            
+            # Update .env.production with secrets
+            sed -i "s|POSTGRES_PASSWORD=.*|POSTGRES_PASSWORD=$POSTGRES_PASSWORD|g" .env.production
+            sed -i "s|REDIS_PASSWORD=.*|REDIS_PASSWORD=$REDIS_PASSWORD|g" .env.production
+            sed -i "s|SECRET_KEY=.*|SECRET_KEY=$SECRET_KEY|g" .env.production
+            sed -i "s|NEXT_PUBLIC_API_URL=.*|NEXT_PUBLIC_API_URL=$NEXT_PUBLIC_API_URL|g" .env.production
+            
+            # Login to GitHub Container Registry
+            echo "${{ secrets.GITHUB_TOKEN }}" | docker login ${{ env.REGISTRY }} -u ${{ github.actor }} --password-stdin
+            
+            # Pull latest images
+            docker-compose -f docker-compose.prod.yml pull
+            
+            # Stop existing containers
+            docker-compose -f docker-compose.prod.yml down
+            
+            # Start services
+            docker-compose -f docker-compose.prod.yml up -d
+            
+            # Show status
+            docker-compose -f docker-compose.prod.yml ps
+            
+            echo "Deployment completed successfully!"
+          ENDSSH
+
+      - name: Health check
+        run: |
+          sleep 30
+          
+          # Check if services are responding
+          ssh -p ${{ secrets.SYNOLOGY_SSH_PORT }} ${{ secrets.SYNOLOGY_USER }}@${{ secrets.SYNOLOGY_HOST }} << 'ENDSSH'
+            cd ${{ secrets.SYNOLOGY_DEPLOY_PATH }}
+            
+            echo "Checking service health..."
+            docker-compose -f docker-compose.prod.yml ps
+            
+            # Check backend health
+            docker exec bitcorp-backend curl -f http://localhost:8000/api/v1/health || echo "Backend health check failed"
+            
+            # Check frontend
+            docker exec bitcorp-frontend wget --spider -q http://localhost:3000 || echo "Frontend health check failed"
+          ENDSSH
+
+      - name: Notify deployment status
+        if: always()
+        run: |
+          if [ "${{ job.status }}" == "success" ]; then
+            echo "✅ Deployment successful!"
+            echo "Frontend: http://${{ secrets.SYNOLOGY_HOST }}:${{ secrets.FRONTEND_PORT }}"
+            echo "Backend: http://${{ secrets.SYNOLOGY_HOST }}:${{ secrets.BACKEND_PORT }}"
+          else
+            echo "❌ Deployment failed!"
+          fi
