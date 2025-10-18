@@ -10,6 +10,11 @@
     "type-check": "npx tsc -p . --noEmit",
     "test": "npx playwright test"
   },
+  "dependencies": {
+    "next": "^15.0.0",
+    "react": "^18.3.0",
+    "react-dom": "^18.3.0"
+  },
   "devDependencies": {
     "typescript": "^5.5.0",
     "@types/node": "^20.10.0",
