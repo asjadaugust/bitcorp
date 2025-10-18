@@ -120,9 +120,85 @@ media/
 
 # Archive folders (keep old code but don't track)
 old_code/
+_archive/
+_archive/**
 archive/
 backup/
 books/
+bitcorp-deploy.tar.gz
+bitcorp-deploy*.tar.gz
+*.tar.gz
+build-backend.log
+build-frontend.log
+frontend/playwright-report/
+frontend/playwright-report/**
+frontend/.next/
+frontend/.next/**
+frontend/playwright-report/data/
+frontend/playwright-report/data/**
+frontend/playwright-report/report.html
+frontend/playwright-report/*.md
+frontend/playwright-report/*.png
+frontend/playwright-report/*.json
+frontend/playwright-report/**
+node_modules/
+package-lock.json
+package-lock.json.*
+npm-debug.log*
+yarn-error.log*
+pnpm-lock.yaml
+dist/
+build/
+uploads/
+upload_data/
+upload_data/**
+tmp/
+temp/
+_temp/
+*.tar
+*.tgz
+*.zip
+*.gz
+
+# Ignore local IDE files
+.idea/
+.vscode/
+.vscode/**
+.vscode-test/
+
+# Ignore OS and editor files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Ignore Python virtualenv and caches
+.venv/
+venv/
+env/
+ENV/
+env.bak/
+venv.bak/
+pip-selfcheck.json
+
+# Ignore environment files (do not commit secrets)
+.env
+.env.*
+.envrc
+.envrc.backup
+*.env
+
+# Ignore runtime files
+runtime-python/
+runtime-python/**
+
+# Misc
+test-file.md
+books/
+old_code/
 
 # Documentation build outputs
 docs/_build/
