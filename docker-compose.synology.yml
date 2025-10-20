@@ -1,0 +1,693 @@
+# ==============================================================================
+# Bitcorp ERP - Docker Compose Configuration for Synology NAS
+# ==============================================================================
+# 
+# DEPLOYMENT INSTRUCTIONS:
+# 1. Place this file in: /volume1/docker/bitcorp/docker-compose.yml
+# 2. Create .env file in: /volume1/docker/bitcorp/.env (see .env.synology.example)
+# 3. Ensure codebase is at: /volume1/PeruFamilyDocs/BitCorp/bitcorp
+# 4. Run: docker-compose up -d
+#
+# ARCHITECTURE:
+# - Separate networks for frontend/backend isolation
+# - Persistent volumes for database, Redis, logs
+# - Health checks for service dependencies
+# - Optimized for Synology DSM Docker environment
+#
+# REFERENCES:
+# - Docker Compose Networking: https://docs.docker.com/compose/networking/
+# - PostgreSQL in Docker: https://hub.docker.com/_/postgres
+# - FastAPI Production: https://fastapi.tiangolo.com/deployment/docker/
+# - Next.js Docker: https://nextjs.org/docs/deployment
+# ==============================================================================
+
+version: '3.8'
+
+# ==============================================================================
+# SERVICES
+# ==============================================================================
+services:
+  # ----------------------------------------------------------------------------
+  # PostgreSQL Database
+  # ----------------------------------------------------------------------------
+  # WHY: PostgreSQL is chosen for its robustness, ACID compliance, and 
+  # excellent support for complex queries needed in ERP systems.
+  # 
+  # LEARNING NOTES:
+  # - postgres:15-alpine: Lightweight, production-ready PostgreSQL image
+  # - Health checks ensure dependent services wait for DB readiness
+  # - Named volumes persist data even when containers are removed
+  # - POSTGRES_INITDB_ARGS sets UTF-8 encoding for multi-language support
+  #
+  # INTERVIEW Q&A:
+  # Q: Why use Alpine-based images?
+  # A: Alpine images are minimal (~5MB base), reducing attack surface and
+  #    improving security. They contain only essential packages.
+  #
+  # Q: What is a health check and why is it important?
+  # A: Health checks periodically test if a service is functioning. Docker
+  #    uses this to determine container health and can restart unhealthy
+  #    containers. Other services can wait for healthy status via depends_on.
+  #
+  # BOOK REFERENCE: "Designing Data-Intensive Applications" - Chapter 1
+  # discusses database reliability and persistence patterns.
+  # ----------------------------------------------------------------------------
+  db:
+    image: postgres:15-alpine
+    container_name: bitcorp_postgres
+    restart: unless-stopped
+    
+    environment:
+      # Database credentials - MUST be changed in production!
+      POSTGRES_DB: ${POSTGRES_DB:-bitcorp_erp}
+      POSTGRES_USER: ${POSTGRES_USER:-bitcorp}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-bitcorp_secure_password_2024}
+      # UTF-8 encoding for internationalization (Spanish/English support)
+      POSTGRES_INITDB_ARGS: "-E UTF8 --locale=en_US.UTF-8"
+      # Performance tuning for Synology NAS
+      POSTGRES_SHARED_BUFFERS: 256MB
+      POSTGRES_MAX_CONNECTIONS: 100
+    
+    ports:
+      # Expose on 5433 to avoid conflicts with system PostgreSQL
+      - "${POSTGRES_PORT:-5433}:5432"
+    
+    volumes:
+      # Persistent data storage on Synology volume
+      - postgres_data:/var/lib/postgresql/data
+      # Mount initialization scripts from codebase
+      - /volume1/PeruFamilyDocs/BitCorp/bitcorp/kubernetes/init-scripts:/docker-entrypoint-initdb.d:ro
+      # Database backup directory (can be scheduled via Synology)
+      - /volume1/PeruFamilyDocs/BitCorp/bitcorp/database/backups:/backups
+    
+    networks:
+      - backend_network
+    
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-bitcorp} -d ${POSTGRES_DB:-bitcorp_erp}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+    
+    # SECURITY NOTE: In production, use Docker secrets instead of environment
+    # variables for sensitive data. See: https://docs.docker.com/engine/swarm/secrets/
+
+  # ----------------------------------------------------------------------------
+  # Redis - Caching & Session Store
+  # ----------------------------------------------------------------------------
+  # WHY: Redis provides fast in-memory caching for API responses, session
+  # management, and serves as Celery's message broker for async tasks.
+  #
+  # LEARNING NOTES:
+  # - Redis persistence (AOF + RDB) ensures data survives restarts
+  # - maxmemory-policy: allkeys-lru evicts least recently used keys when full
+  # - Used for: JWT token blacklist, rate limiting, API caching, Celery queue
+  #
+  # INTERVIEW Q&A:
+  # Q: When would you use Redis vs PostgreSQL?
+  # A: Redis for ephemeral data needing fast access (sessions, cache, queues).
+  #    PostgreSQL for persistent, relational data requiring ACID guarantees.
+  #
+  # BOOK REFERENCE: "Designing Data-Intensive Applications" - Chapter 3
+  # covers caching strategies and in-memory databases.
+  # ----------------------------------------------------------------------------
+  redis:
+    image: redis:7-alpine
+    container_name: bitcorp_redis
+    restart: unless-stopped
+    
+    command: >
+      redis-server
+      --appendonly yes
+      --appendfsync everysec
+      --maxmemory 256mb
+      --maxmemory-policy allkeys-lru
+      --requirepass ${REDIS_PASSWORD:-redis_secure_password_2024}
+    
+    ports:
+      - "${REDIS_PORT:-6379}:6379"
+    
+    volumes:
+      # Persist Redis data (AOF files)
+      - redis_data:/data
+    
+    networks:
+      - backend_network
+    
+    healthcheck:
+      test: ["CMD", "redis-cli", "--raw", "incr", "ping"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+      start_period: 10s
+
+  # ----------------------------------------------------------------------------
+  # FastAPI Backend - ERP Business Logic
+  # ----------------------------------------------------------------------------
+  # WHY: FastAPI chosen for async support, automatic OpenAPI docs, type safety
+  # with Pydantic, and excellent performance (comparable to Node.js).
+  #
+  # LEARNING NOTES:
+  # - Builds from Dockerfile in codebase location
+  # - Mounts codebase for hot-reload in development
+  # - Runs uvicorn with --reload flag for development
+  # - Health check endpoint /health ensures API is responsive
+  #
+  # PRODUCTION CONSIDERATIONS:
+  # - Remove --reload flag in production
+  # - Use gunicorn with uvicorn workers for multi-processing
+  # - Enable HTTPS with reverse proxy (Traefik/Nginx)
+  # - Set appropriate worker count (2-4 per CPU core)
+  #
+  # INTERVIEW Q&A:
+  # Q: Why separate backend and frontend containers?
+  # A: Microservices architecture allows independent scaling, deployment,
+  #    and technology choices. Backend can scale horizontally under load
+  #    without affecting the frontend.
+  #
+  # Q: What is the purpose of depends_on with condition: service_healthy?
+  # A: Ensures backend starts only after database is fully ready, preventing
+  #    connection errors during startup. This is the "circuit breaker" pattern.
+  #
+  # BOOK REFERENCES:
+  # - "Clean Code in Python" - Chapter on API design
+  # - "API Design Patterns" - RESTful best practices
+  # - "Patterns of Enterprise Application Architecture" - Service Layer pattern
+  # ----------------------------------------------------------------------------
+  backend:
+    build:
+      context: /volume1/PeruFamilyDocs/BitCorp/bitcorp/backend
+      dockerfile: Dockerfile
+      args:
+        - PYTHON_VERSION=3.11
+    
+    container_name: bitcorp_backend
+    restart: unless-stopped
+    
+    environment:
+      # Database connection
+      DATABASE_URL: postgresql://${POSTGRES_USER:-bitcorp}:${POSTGRES_PASSWORD:-bitcorp_secure_password_2024}@db:5432/${POSTGRES_DB:-bitcorp_erp}
+      
+      # Redis connection (note auth format)
+      REDIS_URL: redis://:${REDIS_PASSWORD:-redis_secure_password_2024}@redis:6379/0
+      
+      # JWT Configuration
+      SECRET_KEY: ${SECRET_KEY:-your-super-secret-key-change-in-production-min-64-chars-for-security-hs256}
+      ALGORITHM: HS256
+      ACCESS_TOKEN_EXPIRE_MINUTES: ${ACCESS_TOKEN_EXPIRE_MINUTES:-30}
+      REFRESH_TOKEN_EXPIRE_DAYS: ${REFRESH_TOKEN_EXPIRE_DAYS:-7}
+      
+      # Application Settings
+      ENVIRONMENT: ${ENVIRONMENT:-production}
+      API_V1_STR: /api/v1
+      PROJECT_NAME: "Bitcorp ERP"
+      VERSION: "1.0.0"
+      
+      # CORS Configuration (see notes below)
+      CORS_ALLOW_ORIGINS: ${CORS_ALLOW_ORIGINS:-["http://localhost:3000","http://frontend:3000"]}
+      CORS_ALLOW_METHODS: ${CORS_ALLOW_METHODS:-["GET","POST","PUT","DELETE","OPTIONS","PATCH"]}
+      CORS_ALLOW_HEADERS: ${CORS_ALLOW_HEADERS:-["*"]}
+      CORS_ALLOW_CREDENTIALS: ${CORS_ALLOW_CREDENTIALS:-true}
+      
+      # Celery Configuration (for async tasks)
+      CELERY_BROKER_URL: redis://:${REDIS_PASSWORD:-redis_secure_password_2024}@redis:6379/1
+      CELERY_RESULT_BACKEND: redis://:${REDIS_PASSWORD:-redis_secure_password_2024}@redis:6379/2
+      
+      # Logging
+      LOG_LEVEL: ${LOG_LEVEL:-INFO}
+    
+    ports:
+      - "${BACKEND_PORT:-8000}:8000"
+    
+    volumes:
+      # Mount codebase for development hot-reload
+      - /volume1/PeruFamilyDocs/BitCorp/bitcorp/backend:/app:rw
+      # Persistent uploads directory
+      - backend_uploads:/app/uploads
+      # Logs directory (can be monitored via Synology)
+      - /volume1/PeruFamilyDocs/BitCorp/bitcorp/backend/logs:/app/logs
+      # Prevent overwriting node_modules if any
+      - backend_node_modules:/app/node_modules
+    
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    
+    networks:
+      - backend_network
+      - frontend_network
+    
+    # Development command with hot-reload
+    command: uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload --log-level info
+    
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    
+    # IMPORTANT CORS NOTE:
+    # The backend config.py has hardcoded CORS settings due to JSON parsing
+    # issues with environment variables on Windows/Synology. If you need to
+    # modify CORS origins, edit backend/app/core/config.py directly.
+    # See: https://fastapi.tiangolo.com/tutorial/cors/
+
+  # ----------------------------------------------------------------------------
+  # Celery Worker - Async Task Processing
+  # ----------------------------------------------------------------------------
+  # WHY: Celery handles long-running tasks asynchronously (reports, emails,
+  # scheduled jobs) without blocking the API. Essential for ERP operations
+  # like salary calculations, PDF generation, and batch updates.
+  #
+  # LEARNING NOTES:
+  # - Shares backend codebase and dependencies
+  # - Uses Redis as message broker (queue)
+  # - Can scale independently by running multiple worker containers
+  # - Processes tasks in background, freeing up API for requests
+  #
+  # INTERVIEW Q&A:
+  # Q: Why use Celery instead of processing tasks in the API?
+  # A: Long tasks would block API responses, causing timeouts. Celery enables
+  #    async processing, immediate API responses, and horizontal scaling of
+  #    workers based on queue depth.
+  #
+  # BOOK REFERENCE: "Designing Data-Intensive Applications" - Chapter 11
+  # discusses message queues and async job processing patterns.
+  # ----------------------------------------------------------------------------
+  celery_worker:
+    build:
+      context: /volume1/PeruFamilyDocs/BitCorp/bitcorp/backend
+      dockerfile: Dockerfile
+    
+    container_name: bitcorp_celery_worker
+    restart: unless-stopped
+    
+    environment:
+      # Inherit backend environment variables
+      DATABASE_URL: postgresql://${POSTGRES_USER:-bitcorp}:${POSTGRES_PASSWORD:-bitcorp_secure_password_2024}@db:5432/${POSTGRES_DB:-bitcorp_erp}
+      REDIS_URL: redis://:${REDIS_PASSWORD:-redis_secure_password_2024}@redis:6379/0
+      CELERY_BROKER_URL: redis://:${REDIS_PASSWORD:-redis_secure_password_2024}@redis:6379/1
+      CELERY_RESULT_BACKEND: redis://:${REDIS_PASSWORD:-redis_secure_password_2024}@redis:6379/2
+      LOG_LEVEL: ${LOG_LEVEL:-INFO}
+    
+    volumes:
+      - /volume1/PeruFamilyDocs/BitCorp/bitcorp/backend:/app:rw
+      - backend_uploads:/app/uploads
+      - /volume1/PeruFamilyDocs/BitCorp/bitcorp/backend/logs:/app/logs
+    
+    depends_on:
+      - backend
+      - redis
+    
+    networks:
+      - backend_network
+    
+    command: celery -A app.workers.celery_app worker --loglevel=info --concurrency=4
+    
+    # SCALING NOTE: To add more workers, use: docker-compose up -d --scale celery_worker=3
+
+  # ----------------------------------------------------------------------------
+  # Celery Beat - Task Scheduler
+  # ----------------------------------------------------------------------------
+  # WHY: Celery Beat schedules periodic tasks (cron-like) such as:
+  # - Daily equipment utilization reports
+  # - Weekly salary calculations
+  # - Monthly cost analysis aggregations
+  # - Database cleanup tasks
+  #
+  # LEARNING NOTES:
+  # - Only ONE beat instance should run (unlike workers which scale)
+  # - Reads schedule from code or database
+  # - Sends tasks to Celery workers via Redis queue
+  #
+  # INTERVIEW Q&A:
+  # Q: What's the difference between Celery Worker and Celery Beat?
+  # A: Beat is the scheduler (when to run tasks), workers execute tasks.
+  #    Think: Beat = cron, Workers = execution engines.
+  # ----------------------------------------------------------------------------
+  celery_beat:
+    build:
+      context: /volume1/PeruFamilyDocs/BitCorp/bitcorp/backend
+      dockerfile: Dockerfile
+    
+    container_name: bitcorp_celery_beat
+    restart: unless-stopped
+    
+    environment:
+      DATABASE_URL: postgresql://${POSTGRES_USER:-bitcorp}:${POSTGRES_PASSWORD:-bitcorp_secure_password_2024}@db:5432/${POSTGRES_DB:-bitcorp_erp}
+      REDIS_URL: redis://:${REDIS_PASSWORD:-redis_secure_password_2024}@redis:6379/0
+      CELERY_BROKER_URL: redis://:${REDIS_PASSWORD:-redis_secure_password_2024}@redis:6379/1
+      CELERY_RESULT_BACKEND: redis://:${REDIS_PASSWORD:-redis_secure_password_2024}@redis:6379/2
+    
+    volumes:
+      - /volume1/PeruFamilyDocs/BitCorp/bitcorp/backend:/app:rw
+      - /volume1/PeruFamilyDocs/BitCorp/bitcorp/backend/logs:/app/logs
+    
+    depends_on:
+      - backend
+      - redis
+    
+    networks:
+      - backend_network
+    
+    command: celery -A app.workers.celery_app beat --loglevel=info
+
+  # ----------------------------------------------------------------------------
+  # Next.js Frontend - Admin & Mobile PWA
+  # ----------------------------------------------------------------------------
+  # WHY: Next.js provides server-side rendering (SSR), static generation,
+  # automatic code splitting, and excellent developer experience with React.
+  # Perfect for ERP dashboards needing fast initial loads.
+  #
+  # LEARNING NOTES:
+  # - Runs on port 3000 (mapped to host)
+  # - Uses SWR for data fetching (not axios as per migration)
+  # - Connects to backend via NEXT_PUBLIC_API_URL
+  # - Material-UI for responsive, mobile-first design
+  #
+  # PRODUCTION CONSIDERATIONS:
+  # - Build static export: npm run build && npm run export
+  # - Serve via Nginx for better performance
+  # - Enable CDN for static assets
+  # - Use environment-specific .env files
+  #
+  # INTERVIEW Q&A:
+  # Q: What is SSR and why use it for ERP?
+  # A: Server-Side Rendering generates HTML on server, improving SEO and
+  #    initial load time. For ERP, faster perceived performance enhances UX
+  #    for data-heavy dashboards.
+  #
+  # Q: Why separate frontend and backend networks?
+  # A: Defense in depth - frontend can't directly access database or Redis.
+  #    Only backend exposed to frontend via API, reducing attack surface.
+  #
+  # BOOK REFERENCES:
+  # - "Building Large Scale Web Apps" - React patterns for ERP
+  # - "React Design Patterns and Best Practices" - Component architecture
+  # - "Refactoring UI" - Dashboard design principles
+  # ----------------------------------------------------------------------------
+  frontend:
+    build:
+      context: /volume1/PeruFamilyDocs/BitCorp/bitcorp/frontend
+      dockerfile: Dockerfile
+      args:
+        - NODE_VERSION=18
+    
+    container_name: bitcorp_frontend
+    restart: unless-stopped
+    
+    environment:
+      # API connection - use Docker network name 'backend'
+      NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL:-http://backend:8000}
+      NEXT_PUBLIC_APP_NAME: ${NEXT_PUBLIC_APP_NAME:-Bitcorp ERP}
+      
+      # Node environment
+      NODE_ENV: ${NODE_ENV:-production}
+      PORT: 3000
+      
+      # Localization (Spanish/English)
+      NEXT_PUBLIC_DEFAULT_LOCALE: ${NEXT_PUBLIC_DEFAULT_LOCALE:-es}
+      NEXT_PUBLIC_SUPPORTED_LOCALES: ${NEXT_PUBLIC_SUPPORTED_LOCALES:-es,en}
+    
+    ports:
+      - "${FRONTEND_PORT:-3000}:3000"
+    
+    volumes:
+      # Mount codebase for development
+      - /volume1/PeruFamilyDocs/BitCorp/bitcorp/frontend:/app:rw
+      # Preserve node_modules
+      - frontend_node_modules:/app/node_modules
+      # Next.js cache
+      - frontend_next_cache:/app/.next
+    
+    depends_on:
+      - backend
+    
+    networks:
+      - frontend_network
+    
+    # Development command
+    command: sh -c "npm run dev -- -p 3000"
+    
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:3000 || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+    
+    # SYNOLOGY NOTE: If you access via Synology's hostname/IP, add it to
+    # NEXT_PUBLIC_API_URL and update backend CORS settings accordingly.
+
+  # ----------------------------------------------------------------------------
+  # pgAdmin - Database Management UI (Optional)
+  # ----------------------------------------------------------------------------
+  # WHY: Web-based PostgreSQL management tool for database administration,
+  # query execution, schema visualization, and monitoring. Useful for
+  # development and troubleshooting.
+  #
+  # LEARNING NOTES:
+  # - Access via http://synology-ip:5050
+  # - Login with credentials below
+  # - Can manage multiple PostgreSQL servers
+  # - Useful for viewing migration history, running ad-hoc queries
+  #
+  # SECURITY NOTE: Disable in production or restrict access via firewall!
+  # ----------------------------------------------------------------------------
+  pgadmin:
+    image: dpage/pgadmin4:latest
+    container_name: bitcorp_pgadmin
+    restart: unless-stopped
+    
+    environment:
+      PGADMIN_DEFAULT_EMAIL: ${PGADMIN_EMAIL:-admin@bitcorp.com}
+      PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_PASSWORD:-admin_secure_password_2024}
+      PGADMIN_CONFIG_SERVER_MODE: 'False'
+      PGADMIN_CONFIG_MASTER_PASSWORD_REQUIRED: 'False'
+    
+    ports:
+      - "${PGADMIN_PORT:-5050}:80"
+    
+    volumes:
+      - pgadmin_data:/var/lib/pgadmin
+    
+    depends_on:
+      - db
+    
+    networks:
+      - backend_network
+    
+    # COMMENT OUT THIS SERVICE IN PRODUCTION!
+
+# ==============================================================================
+# NETWORKS
+# ==============================================================================
+# 
+# ARCHITECTURE DECISION:
+# - backend_network: Database, Redis, Backend, Celery workers
+# - frontend_network: Frontend and Backend only
+# 
+# WHY TWO NETWORKS?
+# 1. Security: Frontend can't directly access database or Redis
+# 2. Isolation: Backend changes don't affect frontend networking
+# 3. Scalability: Can move networks to different hosts later
+# 
+# LEARNING NOTE:
+# Docker networks provide DNS resolution - services can reference each other
+# by container name (e.g., backend can connect to "db:5432").
+#
+# INTERVIEW Q&A:
+# Q: What is the bridge network driver?
+# A: Default Docker network driver for single-host networking. Provides
+#    isolation between containers and DNS resolution. For multi-host,
+#    use overlay networks with Swarm/Kubernetes.
+#
+# BOOK REFERENCE: "Designing Data-Intensive Applications" - Chapter 8
+# discusses network partitions and microservice communication.
+# ==============================================================================
+networks:
+  backend_network:
+    driver: bridge
+    name: bitcorp_backend_network
+  
+  frontend_network:
+    driver: bridge
+    name: bitcorp_frontend_network
+
+# ==============================================================================
+# VOLUMES
+# ==============================================================================
+#
+# PERSISTENT STORAGE:
+# - postgres_data: Database files (critical - backup regularly!)
+# - redis_data: Cache and queue data (can be regenerated)
+# - pgadmin_data: pgAdmin configuration and settings
+# - backend_uploads: User-uploaded files (equipment manuals, reports)
+# - backend_node_modules: Prevents overwriting if backend has node deps
+# - frontend_node_modules: Next.js dependencies
+# - frontend_next_cache: Next.js build cache for faster rebuilds
+#
+# SYNOLOGY BACKUP STRATEGY:
+# 1. Use Synology Hyper Backup to backup volumes regularly
+# 2. Schedule pg_dump via cron for database backups
+# 3. Store backups on different physical location/volume
+# 4. Test restore procedures quarterly
+#
+# LEARNING NOTES:
+# - Named volumes managed by Docker, stored in /var/lib/docker/volumes/
+# - Bind mounts (used above) map host directories to containers
+# - Volumes persist even when containers are removed
+# - Use `docker volume ls` to list volumes
+# - Use `docker volume inspect <name>` to see details
+#
+# INTERVIEW Q&A:
+# Q: What's the difference between volumes and bind mounts?
+# A: Volumes are managed by Docker, platform-independent, better performance.
+#    Bind mounts depend on host filesystem structure, useful for development.
+#
+# Q: How do you backup Docker volumes?
+# A: Method 1: Use `docker run --rm --volumes-from <container> -v $(pwd):/backup busybox tar czf /backup/backup.tar.gz /data`
+#    Method 2: Use volume driver plugins (e.g., REX-Ray)
+#    Method 3: Synology: Use Hyper Backup to backup Docker volume directory
+#
+# BOOK REFERENCE: "Designing Data-Intensive Applications" - Chapter 3
+# covers data storage, replication, and backup strategies.
+# ==============================================================================
+volumes:
+  postgres_data:
+    name: bitcorp_postgres_data
+  
+  redis_data:
+    name: bitcorp_redis_data
+  
+  pgadmin_data:
+    name: bitcorp_pgadmin_data
+  
+  backend_uploads:
+    name: bitcorp_backend_uploads
+  
+  backend_node_modules:
+    name: bitcorp_backend_node_modules
+  
+  frontend_node_modules:
+    name: bitcorp_frontend_node_modules
+  
+  frontend_next_cache:
+    name: bitcorp_frontend_next_cache
+
+# ==============================================================================
+# DEPLOYMENT CHECKLIST
+# ==============================================================================
+#
+# BEFORE FIRST RUN:
+# [ ] 1. Copy this file to /volume1/docker/bitcorp/docker-compose.yml
+# [ ] 2. Create .env file with secure passwords (see .env.synology.example)
+# [ ] 3. Verify codebase exists at /volume1/PeruFamilyDocs/BitCorp/bitcorp
+# [ ] 4. Ensure Docker is enabled in Synology DSM
+# [ ] 5. Open required ports in Synology firewall (3000, 8000, 5433, 6379)
+# [ ] 6. Create directory: mkdir -p /volume1/PeruFamilyDocs/BitCorp/bitcorp/backend/logs
+# [ ] 7. Create directory: mkdir -p /volume1/PeruFamilyDocs/BitCorp/bitcorp/database/backups
+#
+# FIRST DEPLOYMENT:
+# 1. cd /volume1/docker/bitcorp
+# 2. docker-compose pull              # Pull latest images
+# 3. docker-compose build --no-cache  # Build backend/frontend
+# 4. docker-compose up -d             # Start all services
+# 5. docker-compose logs -f           # Monitor startup logs
+# 6. docker-compose ps                # Verify all services healthy
+#
+# DATABASE INITIALIZATION:
+# 1. Wait for postgres container to be healthy
+# 2. Run migrations: docker-compose exec backend alembic upgrade head
+# 3. Seed data: docker-compose exec backend python scripts/seed_data.py
+#
+# ACCESS POINTS:
+# - Frontend: http://synology-ip:3000
+# - Backend API: http://synology-ip:8000
+# - API Docs: http://synology-ip:8000/docs
+# - pgAdmin: http://synology-ip:5050
+# - PostgreSQL: synology-ip:5433
+# - Redis: synology-ip:6379
+#
+# MONITORING:
+# - View logs: docker-compose logs -f <service_name>
+# - Check health: docker-compose ps
+# - Resource usage: docker stats
+# - Synology DSM: Docker app shows container status/resources
+#
+# MAINTENANCE:
+# - Update containers: docker-compose pull && docker-compose up -d
+# - Restart service: docker-compose restart <service_name>
+# - Stop all: docker-compose down
+# - Remove volumes: docker-compose down -v (WARNING: deletes data!)
+#
+# TROUBLESHOOTING:
+# - Container won't start: docker-compose logs <service_name>
+# - Permission errors: Check Synology volume permissions (should be readable/writable)
+# - Network errors: Verify firewall rules, check docker network ls
+# - Database connection: Ensure db service is healthy before backend starts
+#
+# SECURITY HARDENING:
+# [ ] Change all default passwords in .env
+# [ ] Disable pgAdmin in production (comment out service)
+# [ ] Use Docker secrets instead of environment variables
+# [ ] Enable HTTPS via reverse proxy (Nginx/Traefik)
+# [ ] Restrict database/redis ports to localhost only
+# [ ] Enable Synology firewall rules
+# [ ] Regular security updates: docker-compose pull
+#
+# PERFORMANCE OPTIMIZATION:
+# [ ] Adjust PostgreSQL shared_buffers based on available RAM
+# [ ] Configure Redis maxmemory based on cache needs
+# [ ] Optimize Celery worker concurrency (default 4)
+# [ ] Enable Next.js static generation for public pages
+# [ ] Use Nginx as reverse proxy for static asset caching
+# [ ] Monitor resource usage and scale as needed
+#
+# BACKUP STRATEGY:
+# [ ] Schedule daily pg_dump to /volume1/PeruFamilyDocs/BitCorp/bitcorp/database/backups
+# [ ] Use Synology Hyper Backup for Docker volumes
+# [ ] Test restore procedures monthly
+# [ ] Store offsite backup copy
+# [ ] Document recovery time objective (RTO) and recovery point objective (RPO)
+#
+# ==============================================================================
+# FURTHER LEARNING RESOURCES
+# ==============================================================================
+#
+# Docker & Containers:
+# - Official Docker Docs: https://docs.docker.com/
+# - Docker Compose Reference: https://docs.docker.com/compose/compose-file/
+# - Docker Best Practices: https://docs.docker.com/develop/dev-best-practices/
+#
+# FastAPI:
+# - FastAPI Docs: https://fastapi.tiangolo.com/
+# - Deployment Guide: https://fastapi.tiangolo.com/deployment/
+# - Testing: https://fastapi.tiangolo.com/tutorial/testing/
+#
+# Next.js:
+# - Next.js Docs: https://nextjs.org/docs
+# - Docker Deployment: https://nextjs.org/docs/deployment
+# - Production Checklist: https://nextjs.org/docs/going-to-production
+#
+# PostgreSQL:
+# - Official Docs: https://www.postgresql.org/docs/
+# - Performance Tuning: https://wiki.postgresql.org/wiki/Performance_Optimization
+# - Backup & Recovery: https://www.postgresql.org/docs/current/backup.html
+#
+# Redis:
+# - Redis Docs: https://redis.io/docs/
+# - Persistence: https://redis.io/docs/management/persistence/
+# - Security: https://redis.io/docs/management/security/
+#
+# Books (see /books folder):
+# - "Clean Code in Python" - Writing maintainable Python code
+# - "Designing Data-Intensive Applications" - System design fundamentals
+# - "API Design Patterns" - REST API best practices
+# - "React Design Patterns and Best Practices" - Frontend architecture
+#
+# ==============================================================================
