@@ -75,8 +75,10 @@ services:
     volumes:
       # Persistent data storage on Synology volume
       - postgres_data:/var/lib/postgresql/data
-      # Mount initialization scripts from codebase
-      - /volume1/PeruFamilyDocs/BitCorp/bitcorp/kubernetes/init-scripts:/docker-entrypoint-initdb.d:ro
+      # Mount initialization scripts from codebase (OPTIONAL - uncomment if needed)
+      # IMPORTANT: If you get "Permission denied" errors, run scripts/fix-postgres-permissions.sh
+      # or comment out this line. Init scripts are only needed for custom DB initialization.
+      # - /volume1/PeruFamilyDocs/BitCorp/bitcorp/kubernetes/init-scripts:/docker-entrypoint-initdb.d:ro
       # Database backup directory (can be scheduled via Synology)
       - /volume1/PeruFamilyDocs/BitCorp/bitcorp/database/backups:/backups
     
