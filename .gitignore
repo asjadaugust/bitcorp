@@ -207,4 +207,7 @@ site/
 # IDEs
 *.sublime-project
 *.sublime-workspace
-*.code-workspace
+*.code-workspace# SSL Certificates - Do not commit
+nginx/ssl/*.pem
+nginx/ssl/*.key
+nginx/ssl/*.crt
