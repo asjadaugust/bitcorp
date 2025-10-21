@@ -11,7 +11,8 @@ ERP moderno para empresas constructoras que gestionan equipos pesados y operador
 ### Despliegue en Producción (Synology NAS)
 
 ```bash
-# 1. Clonar repositorio
+# 1. Clonar repositorio a Synology (vía SSH o File Station)
+cd /volume1/docker
 git clone <url-de-tu-repo> bitcorp
 cd bitcorp
 
@@ -19,15 +20,39 @@ cd bitcorp
 cp .env.example .env
 nano .env  # Establecer contraseñas seguras
 
-# 3. Desplegar
+# 3. Desplegar contenedores
 docker-compose up -d --build
 
-# 4. Inicializar base de datos
+# 4. Inicializar base de datos (esperar 1 minuto)
 docker-compose exec backend python -c "from app.core.init_db import initialize_database; from app.core.database import SessionLocal; initialize_database(SessionLocal())"
 
-# 5. Acceder a la aplicación
-# https://bitcorp.mohammadasjad.com
+# 5. Configurar Proxy Inverso de Synology (ver abajo)
 ```
+
+### ⚙️ Configuración de Proxy Inverso en Synology
+
+**Panel de Control DSM > Portal de Inicio > Avanzado > Proxy Inverso**
+
+Crear regla para Bitcorp:
+
+| Campo | Valor |
+|-------|-------|
+| **Descripción** | Bitcorp ERP |
+| **Protocolo de Origen** | HTTPS |
+| **Nombre de Host de Origen** | bitcorp.mohammadasjad.com |
+| **Puerto de Origen** | 443 |
+| **Protocolo de Destino** | HTTPS |
+| **Nombre de Host de Destino** | localhost |
+| **Puerto de Destino** | **8443** |
+
+**Encabezados Personalizados** (soporte WebSocket):
+- `Upgrade: $http_upgrade`
+- `Connection: $connection_upgrade`
+
+✅ Habilitar HSTS  
+✅ Habilitar HTTP/2
+
+**Acceso**: https://bitcorp.mohammadasjad.com
 
 ---
 
@@ -95,6 +120,31 @@ bitcorp/
 
 ## 🔧 Solución de Problemas
 
+### Puerto 443 ya en uso
+**Error**: `bind: address already in use`
+
+**Solución**: Synology DSM usa los puertos 80/443. Nuestro nginx usa **8080/8443** internamente.
+
+1. **Detener contenedores si están corriendo**:
+   ```bash
+   docker-compose down
+   ```
+
+2. **Verificar que docker-compose.yml tiene puertos correctos**:
+   ```yaml
+   nginx:
+     ports:
+       - "8080:80"
+       - "8443:443"  # Puerto interno, sin conflicto
+   ```
+
+3. **Iniciar contenedores**:
+   ```bash
+   docker-compose up -d --build
+   ```
+
+4. **Configurar Proxy Inverso de Synology** (ver sección Inicio Rápido)
+
 ### El contenedor no inicia
 ```bash
 docker-compose logs <nombre-servicio>
@@ -127,7 +177,23 @@ docker-compose up -d
 ## 🏗 Arquitectura
 
 ```
-Internet → Proxy Inverso Synology (SSL)
+Internet (Puerto 443) 
+    ↓
+Proxy Inverso Synology DSM (Terminación SSL)
+    ↓
+Contenedor bitcorp_nginx (Puerto 8443)
+    ├─→ /api/v1/* → bitcorp_backend (Puerto 8000)
+    └─→ /* → bitcorp_frontend (Puerto 3000)
+              ↓
+         bitcorp_db (PostgreSQL:5432)
+         bitcorp_redis (Redis:6379)
+```
+
+**Puntos Clave:**
+- Synology DSM maneja SSL externo (puerto 443)
+- Nginx corre en puerto interno 8443 (sin conflicto de puertos)
+- Todos los servicios se comunican via redes Docker internas
+- Dominio único para frontend + backend (sin problemas CORS)
          → Puerto 443 → Docker Nginx
                       → /api → Backend (FastAPI)
                       → / → Frontend (Next.js)

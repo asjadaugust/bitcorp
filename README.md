@@ -11,7 +11,8 @@ Modern ERP for construction companies managing heavy equipment and operators acr
 ### Production Deployment (Synology NAS)
 
 ```bash
-# 1. Clone repository
+# 1. Clone repository to Synology (via SSH or File Station)
+cd /volume1/docker
 git clone <your-repo-url> bitcorp
 cd bitcorp
 
@@ -19,15 +20,39 @@ cd bitcorp
 cp .env.example .env
 nano .env  # Set secure passwords
 
-# 3. Deploy
+# 3. Deploy containers
 docker-compose up -d --build
 
-# 4. Initialize database
+# 4. Initialize database (wait 1 minute for services to start)
 docker-compose exec backend python -c "from app.core.init_db import initialize_database; from app.core.database import SessionLocal; initialize_database(SessionLocal())"
 
-# 5. Access application
-# https://bitcorp.mohammadasjad.com
+# 5. Configure Synology Reverse Proxy (see below)
 ```
+
+### ⚙️ Synology Reverse Proxy Setup
+
+**DSM Control Panel > Login Portal > Advanced > Reverse Proxy**
+
+Create rule for Bitcorp:
+
+| Field | Value |
+|-------|-------|
+| **Description** | Bitcorp ERP |
+| **Source Protocol** | HTTPS |
+| **Source Hostname** | bitcorp.mohammadasjad.com |
+| **Source Port** | 443 |
+| **Destination Protocol** | HTTPS |
+| **Destination Hostname** | localhost |
+| **Destination Port** | **8443** |
+
+**Custom Headers** (WebSocket support):
+- `Upgrade: $http_upgrade`
+- `Connection: $connection_upgrade`
+
+✅ Enable HSTS  
+✅ Enable HTTP/2
+
+**Access**: https://bitcorp.mohammadasjad.com
 
 ---
 
@@ -95,6 +120,31 @@ bitcorp/
 
 ## 🔧 Troubleshooting
 
+### Port 443 already in use
+**Error**: `bind: address already in use`
+
+**Solution**: Synology DSM uses ports 80/443. Our nginx uses **8080/8443** internally.
+
+1. **Stop containers if running**:
+   ```bash
+   docker-compose down
+   ```
+
+2. **Verify docker-compose.yml has correct ports**:
+   ```yaml
+   nginx:
+     ports:
+       - "8080:80"
+       - "8443:443"  # Internal port, no conflict
+   ```
+
+3. **Start containers**:
+   ```bash
+   docker-compose up -d --build
+   ```
+
+4. **Configure Synology Reverse Proxy** (see Quick Start section)
+
 ### Container won't start
 ```bash
 docker-compose logs <service-name>
@@ -127,13 +177,23 @@ docker-compose up -d
 ## 🏗 Architecture
 
 ```
-Internet → Synology Reverse Proxy (SSL)
-         → Port 443 → Docker Nginx
-                    → /api → Backend (FastAPI)
-                    → / → Frontend (Next.js)
-                        Backend → PostgreSQL
-                        Backend → Redis
+Internet (Port 443) 
+    ↓
+Synology DSM Reverse Proxy (SSL Termination)
+    ↓
+bitcorp_nginx Container (Port 8443)
+    ├─→ /api/v1/* → bitcorp_backend (Port 8000)
+    └─→ /* → bitcorp_frontend (Port 3000)
+              ↓
+         bitcorp_db (PostgreSQL:5432)
+         bitcorp_redis (Redis:6379)
 ```
+
+**Key Points:**
+- Synology DSM handles external SSL (port 443)
+- Nginx runs on internal port 8443 (no port conflict)
+- All services communicate via Docker internal networks
+- Single domain for frontend + backend (no CORS issues)
 
 ---
 
