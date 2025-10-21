@@ -21,15 +21,13 @@ app = FastAPI(
     openapi_url=f"{settings.API_V1_STR}/openapi.json"
 )
 
-# Enhanced CORS configuration for development
+# CORS configuration - allows same-domain requests via nginx proxy
 app.add_middleware(
     CORSMiddleware,
     allow_origins=[
+        "https://bitcorp.mohammadasjad.com",
         "http://localhost:3000",
-        "http://localhost:3001",
         "http://127.0.0.1:3000",
-        "http://127.0.0.1:3001",
-        "*"  # Allow all origins for development
     ],
     allow_credentials=settings.CORS_ALLOW_CREDENTIALS,
     allow_methods=settings.CORS_ALLOW_METHODS,
