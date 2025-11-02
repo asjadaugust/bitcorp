@@ -3,7 +3,7 @@
 # ==============================================================================
 
 # Stage 1: Dependencies
-FROM node:18-alpine AS deps
+FROM node:20-alpine AS deps
 # gcompat replaces libc6-compat in Alpine 3.19+
 RUN apk add --no-cache gcompat
 
@@ -12,12 +12,16 @@ WORKDIR /app
 # Copy package files only (for better caching)
 COPY package.json package-lock.json* ./
 
-# Install dependencies with clean install for reproducible builds
-RUN npm ci --omit=dev --ignore-scripts && \
+# Install dependencies - use npm install if lock file doesn't exist
+RUN if [ -f package-lock.json ]; then \
+    npm ci --omit=dev --ignore-scripts; \
+    else \
+    npm install --omit=dev --ignore-scripts; \
+    fi && \
     npm cache clean --force
 
 # Stage 2: Builder
-FROM node:18-alpine AS builder
+FROM node:20-alpine AS builder
 WORKDIR /app
 
 # Copy dependencies from deps stage
@@ -40,7 +44,7 @@ ENV NODE_ENV=production
 RUN npm run build
 
 # Stage 3: Production runner
-FROM node:18-alpine AS runner
+FROM node:20-alpine AS runner
 WORKDIR /app
 
 # Set production environment
@@ -64,7 +68,7 @@ EXPOSE 3000
 
 # Health check
 HEALTHCHECK --interval=30s --timeout=10s --start-period=60s --retries=3 \
-  CMD node -e "require('http').get('http://localhost:3000', (r) => {if(r.statusCode !== 200) throw new Error(r.statusCode)})"
+    CMD node -e "require('http').get('http://localhost:3000', (r) => {if(r.statusCode !== 200) throw new Error(r.statusCode)})"
 
 # Start Next.js in production mode
 CMD ["node", "server.js"]
