@@ -1,24 +1,70 @@
-# Use Node.js 18 Alpine image
-FROM node:18-alpine
+# ==============================================================================
+# Multi-stage build for production deployment
+# ==============================================================================
 
-# Set working directory
+# Stage 1: Dependencies
+FROM node:18-alpine AS deps
+# gcompat replaces libc6-compat in Alpine 3.19+
+RUN apk add --no-cache gcompat
+
 WORKDIR /app
 
-# Set PORT environment variable to ensure consistent port usage
-ENV PORT=3000
+# Copy package files only (for better caching)
+COPY package.json package-lock.json* ./
 
-# Install dependencies based on the preferred package manager
-COPY package.json ./
-RUN npm install && npm cache clean --force
+# Install dependencies with clean install for reproducible builds
+RUN npm ci --omit=dev --ignore-scripts && \
+    npm cache clean --force
 
-# Copy source code
+# Stage 2: Builder
+FROM node:18-alpine AS builder
+WORKDIR /app
+
+# Copy dependencies from deps stage
+COPY --from=deps /app/node_modules ./node_modules
+
+# Copy all source files
 COPY . .
 
-# Skip build for development - use runtime build
-# RUN npm run build
+# Accept build-time arguments
+ARG NEXT_PUBLIC_API_URL=""
+ARG NEXT_PUBLIC_APP_NAME="Bitcorp ERP"
 
-# Expose port 3000 explicitly
+# Set build-time environment
+ENV NEXT_TELEMETRY_DISABLED=1
+ENV NEXT_PUBLIC_API_URL=${NEXT_PUBLIC_API_URL}
+ENV NEXT_PUBLIC_APP_NAME=${NEXT_PUBLIC_APP_NAME}
+ENV NODE_ENV=production
+
+# Build Next.js app
+RUN npm run build
+
+# Stage 3: Production runner
+FROM node:18-alpine AS runner
+WORKDIR /app
+
+# Set production environment
+ENV NODE_ENV=production
+ENV NEXT_TELEMETRY_DISABLED=1
+ENV PORT=3000
+
+# Create non-root user
+RUN addgroup --system --gid 1001 nodejs && \
+    adduser --system --uid 1001 nextjs
+
+# Copy necessary files from builder
+COPY --from=builder /app/public ./public
+COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
+COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
+
+# Switch to non-root user
+USER nextjs
+
 EXPOSE 3000
 
-# Start the development server with explicit port
-CMD ["npm", "run", "dev", "--", "-p", "3000"]
+# Health check
+HEALTHCHECK --interval=30s --timeout=10s --start-period=60s --retries=3 \
+  CMD node -e "require('http').get('http://localhost:3000', (r) => {if(r.statusCode !== 200) throw new Error(r.statusCode)})"
+
+# Start Next.js in production mode
+CMD ["node", "server.js"]
