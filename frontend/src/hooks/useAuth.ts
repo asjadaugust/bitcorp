@@ -27,11 +27,22 @@ export const useAuth = () => {
     initialize,
   } = useAuthStore();
 
+  // DEBUG: Log state changes
+  useEffect(() => {
+    console.log('[useAuth] State:', {
+      hasUser: !!user,
+      isAuthenticated,
+      isLoading,
+      user: user?.email,
+    });
+  }, [user, isAuthenticated, isLoading]);
+
   // Initialize auth state on mount
   useEffect(() => {
     let mounted = true;
 
     const initializeAuth = async () => {
+      console.log('[useAuth] Starting initialization');
       setLoading(true);
 
       try {
@@ -39,28 +50,40 @@ export const useAuth = () => {
 
         // If we have tokens but no user, try to fetch user data
         const store = useAuthStore.getState();
+        console.log('[useAuth] After initialize:', {
+          isAuthenticated: store.isAuthenticated,
+          hasToken: !!store.accessToken,
+          hasUser: !!store.user,
+        });
+        
         if (
           store.isAuthenticated &&
           store.accessToken &&
           !store.user &&
           mounted
         ) {
+          console.log('[useAuth] Fetching user data');
           try {
             const userData = await authAPI.getCurrentUser();
             if (mounted) {
+              console.log('[useAuth] User data fetched:', userData.email);
               setUser(userData);
             }
           } catch {
             // If user fetch fails, clear auth state
+            console.log('[useAuth] User fetch failed, logging out');
             if (mounted) {
               logoutStore();
             }
           }
+        } else {
+          console.log('[useAuth] Skipping user fetch - already have user or not authenticated');
         }
       } catch (error) {
         console.error('Auth initialization error:', error);
       } finally {
         if (mounted) {
+          console.log('[useAuth] Initialization complete, setting loading = false');
           setLoading(false);
         }
       }
