@@ -37,19 +37,8 @@ export default function DashboardPage() {
   const t = useTranslations('Dashboard');
   const { formatCurrency } = useCurrencyFormatter();
 
-  // DEBUG: Log state changes
-  useEffect(() => {
-    console.log('[Dashboard] State:', {
-      isInitialized,
-      isAuthenticated,
-      hasUser: !!user,
-      user: user?.email,
-    });
-  }, [isInitialized, isAuthenticated, user]);
-
   useEffect(() => {
     if (isInitialized && !isAuthenticated) {
-      console.log('[Dashboard] Not authenticated, redirecting to login');
       router.push('/login');
     }
   }, [isAuthenticated, isInitialized, router]);
