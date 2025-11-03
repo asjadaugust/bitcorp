@@ -43,7 +43,8 @@ export default function DashboardPage() {
     }
   }, [isAuthenticated, isInitialized, router]);
 
-  if (!isInitialized || (isInitialized && !isAuthenticated)) {
+  // Show loading only while initializing, not after redirect decision is made
+  if (!isInitialized) {
     return (
       <Box
         sx={{
@@ -57,13 +58,16 @@ export default function DashboardPage() {
         <Box sx={{ textAlign: 'center' }}>
           <CircularProgress size={48} sx={{ mb: 2 }} />
           <Typography color="text.secondary">
-            {!isAuthenticated
-              ? 'Redirecting to login...'
-              : 'Loading dashboard...'}
+            Loading dashboard...
           </Typography>
         </Box>
       </Box>
     );
+  }
+
+  // If not authenticated after initialization, return null (redirect happens in useEffect)
+  if (!isAuthenticated) {
+    return null;
   }
 
   if (!user) {
