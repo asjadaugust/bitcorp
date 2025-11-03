@@ -1,4 +1,3 @@
-import useSWR from 'swr';
 import useSWRMutation from 'swr/mutation';
 import { useAuthStore } from '@/stores/auth';
 import {
@@ -27,11 +26,15 @@ export const useAuth = () => {
     initialize,
   } = useAuthStore();
 
+  // DEBUG
+  console.log('[useAuth] Render:', { hasUser: !!user, isAuthenticated, isLoading });
+
   // Initialize auth state on mount ONCE
   useEffect(() => {
     let mounted = true;
 
     const initializeAuth = async () => {
+      console.log('[useAuth] INIT START');
       setLoading(true);
 
       try {
@@ -39,6 +42,7 @@ export const useAuth = () => {
 
         // If we have tokens but no user, try to fetch user data
         const store = useAuthStore.getState();
+        console.log('[useAuth] After initialize:', store.isAuthenticated, !!store.user);
         
         if (
           store.isAuthenticated &&
@@ -62,6 +66,7 @@ export const useAuth = () => {
         console.error('Auth initialization error:', error);
       } finally {
         if (mounted) {
+          console.log('[useAuth] INIT COMPLETE');
           setLoading(false);
         }
       }
@@ -74,22 +79,6 @@ export const useAuth = () => {
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []); // Empty deps - only run once on mount
-
-  // Get current user query using SWR
-  const { data: currentUser, isLoading: isUserLoading } = useSWR(
-    isAuthenticated && !user ? 'currentUser' : null,
-    authAPI.getCurrentUser,
-    {
-      revalidateOnFocus: false,
-      shouldRetryOnError: false,
-      dedupingInterval: 5 * 60 * 1000, // 5 minutes
-    }
-  );
-
-  // Update user in store when query resolves
-  if (currentUser && !user) {
-    setUser(currentUser);
-  }
 
   // Login mutation using SWR
   const { trigger: login, isMutating: isLoggingIn } = useSWRMutation(
@@ -156,7 +145,7 @@ export const useAuth = () => {
     // State
     user,
     isAuthenticated,
-    isLoading: isLoading || isUserLoading || isLoggingIn || isRegistering,
+    isLoading: isLoading || isLoggingIn || isRegistering,
     error,
 
     // Actions - these functions now handle the loading state and errors internally
@@ -182,6 +171,6 @@ export const useAuth = () => {
     isLogoutPending: false,
 
     // Additional state for better UX
-    isInitialized: !isLoading && !isUserLoading,
+    isInitialized: !isLoading,
   };
 };

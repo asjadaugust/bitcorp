@@ -37,8 +37,11 @@ export default function DashboardPage() {
   const t = useTranslations('Dashboard');
   const { formatCurrency } = useCurrencyFormatter();
 
+  console.log('[Dashboard] Render:', { isInitialized, isAuthenticated, hasUser: !!user });
+
   useEffect(() => {
     if (isInitialized && !isAuthenticated) {
+      console.log('[Dashboard] Redirecting to login');
       router.push('/login');
     }
   }, [isAuthenticated, isInitialized, router]);
