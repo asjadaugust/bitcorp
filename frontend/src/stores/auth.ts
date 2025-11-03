@@ -39,6 +39,7 @@ interface AuthState {
   refreshToken: string | null;
   isAuthenticated: boolean;
   isLoading: boolean;
+  isInitialized: boolean; // Track if Zustand persistence has been hydrated
   error: string | null;
 }
 
@@ -62,6 +63,7 @@ export const useAuthStore = create<AuthState & AuthActions>()(
       refreshToken: null,
       isAuthenticated: false,
       isLoading: false,
+      isInitialized: false,
       error: null,
 
       // Actions
@@ -69,6 +71,7 @@ export const useAuthStore = create<AuthState & AuthActions>()(
         set({
           user,
           isAuthenticated: true,
+          isInitialized: true,
           error: null,
         }),
 
@@ -78,6 +81,7 @@ export const useAuthStore = create<AuthState & AuthActions>()(
           accessToken,
           refreshToken,
           isAuthenticated: true,
+          isInitialized: true,
         });
 
         // Also set in localStorage for API functions
@@ -93,6 +97,7 @@ export const useAuthStore = create<AuthState & AuthActions>()(
           accessToken: null,
           refreshToken: null,
           isAuthenticated: false,
+          isInitialized: true,
           error: null,
         });
 
@@ -124,6 +129,9 @@ export const useAuthStore = create<AuthState & AuthActions>()(
       },
 
       initialize: () => {
+        // Mark as initialized after hydration
+        set({ isInitialized: true });
+        
         // Sync tokens from store to localStorage on initialization
         const { accessToken, refreshToken } = get();
         if (accessToken && refreshToken && typeof window !== 'undefined') {

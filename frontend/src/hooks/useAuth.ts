@@ -9,12 +9,16 @@ import {
 import { useRouter } from 'next/navigation';
 import { useEffect } from 'react';
 
+// Global flag to ensure initialization only happens once across all components
+let globalInitStarted = false;
+
 export const useAuth = () => {
   const router = useRouter();
   const {
     user,
     isAuthenticated,
     isLoading,
+    isInitialized: storeInitialized,
     error,
     setUser,
     setTokens,
@@ -27,11 +31,18 @@ export const useAuth = () => {
   } = useAuthStore();
 
   // DEBUG
-  console.log('[useAuth] Render:', { hasUser: !!user, isAuthenticated, isLoading });
+  console.log('[useAuth] Render:', { hasUser: !!user, isAuthenticated, isLoading, storeInitialized, globalInitStarted });
 
-  // Initialize auth state on mount ONCE
+  // Initialize auth state on mount ONCE GLOBALLY
   useEffect(() => {
+    // Skip if already started initialization globally
+    if (globalInitStarted) {
+      console.log('[useAuth] SKIP - Global init already started');
+      return;
+    }
+
     let mounted = true;
+    globalInitStarted = true;
 
     const initializeAuth = async () => {
       console.log('[useAuth] INIT START');
@@ -171,6 +182,6 @@ export const useAuth = () => {
     isLogoutPending: false,
 
     // Additional state for better UX
-    isInitialized: !isLoading,
+    isInitialized: storeInitialized && !isLoading,
   };
 };
