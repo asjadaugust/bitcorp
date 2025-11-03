@@ -30,14 +30,10 @@ export const useAuth = () => {
     initialize,
   } = useAuthStore();
 
-  // DEBUG
-  console.log('[useAuth] Render:', { hasUser: !!user, isAuthenticated, isLoading, storeInitialized, globalInitStarted });
-
   // Initialize auth state on mount ONCE GLOBALLY
   useEffect(() => {
     // Skip if already started initialization globally
     if (globalInitStarted) {
-      console.log('[useAuth] SKIP - Global init already started');
       return;
     }
 
@@ -45,7 +41,6 @@ export const useAuth = () => {
     globalInitStarted = true;
 
     const initializeAuth = async () => {
-      console.log('[useAuth] INIT START');
       setLoading(true);
 
       try {
@@ -53,7 +48,6 @@ export const useAuth = () => {
 
         // If we have tokens but no user, try to fetch user data
         const store = useAuthStore.getState();
-        console.log('[useAuth] After initialize:', store.isAuthenticated, !!store.user);
         
         if (
           store.isAuthenticated &&
@@ -77,7 +71,6 @@ export const useAuth = () => {
         console.error('Auth initialization error:', error);
       } finally {
         if (mounted) {
-          console.log('[useAuth] INIT COMPLETE');
           setLoading(false);
         }
       }
