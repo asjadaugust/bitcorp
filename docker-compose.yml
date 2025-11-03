@@ -115,13 +115,13 @@ services:
       context: ./frontend
       dockerfile: Dockerfile
       args:
-        NEXT_PUBLIC_API_URL: https://bitcorp.mohammadasjad.com/api
+        NEXT_PUBLIC_API_URL: https://bitcorp.mohammadasjad.com
     
     container_name: bitcorp_frontend
     restart: unless-stopped
     
     environment:
-      NEXT_PUBLIC_API_URL: https://bitcorp.mohammadasjad.com/api
+      NEXT_PUBLIC_API_URL: https://bitcorp.mohammadasjad.com
       NEXT_PUBLIC_APP_NAME: "Bitcorp ERP"
       NODE_ENV: production
     
